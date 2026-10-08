@@ -1,0 +1,30 @@
+# Projeto Final (IN1102, pós-graduação, 2026.2): ruff e testes (infraestrutura e aceitação).
+name: testes
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    env:
+      # Necessário apenas para o grupo do TabPFN-3.5: cadastre o segredo TABPFN_TOKEN
+      # em Settings > Secrets and variables > Actions do repositório do grupo.
+      TABPFN_TOKEN: ${{ secrets.TABPFN_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Instalar dependências (torch para CPU na CI)
+        # Acrescente o extra do modelo do grupo na linha do uv export (ex.: --extra tabicl)
+        # para que o teste de contrato do modelo tema seja executado na CI.
+        run: |
+          uv venv --python 3.12
+          uv export --frozen --no-hashes --no-emit-project --extra baselines --group dev \
+            | grep -v -E '^(nvidia-|triton|cuda-)' > requirements-ci.txt
+          uv pip install --torch-backend cpu -r requirements-ci.txt
+          uv pip install --no-deps -e .
+      - name: Lint
+        run: uv run --no-sync ruff check src data tests
+      - name: Testes (aceitação aparece como xfail até ser implementada)
+        run: uv run --no-sync pytest

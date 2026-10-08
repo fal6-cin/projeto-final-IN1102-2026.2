@@ -1,0 +1,79 @@
+[project]
+name = "projeto-final-am-pos"
+version = "2026.2.1"
+description = "Repositório-template do Projeto Final de Aprendizagem de Máquina (IN1102, pós-graduação)"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "Disciplina IN1102 Aprendizagem de Máquina, pós-graduação" },
+]
+
+# Núcleo comum: dados, métricas, tuning e análise. A estatística de Demšar (2006) é
+# implementada pelo grupo com scipy (src/pipeline/demsar.py).
+dependencies = [
+    "numpy>=2.0,<2.6",
+    "pandas>=2.2,<3.0",
+    "scikit-learn>=1.6,<1.10",
+    "scipy>=1.13,<2.0",
+    "matplotlib>=3.8,<4.0",
+    "seaborn>=0.13,<1.0",
+    "tabulate>=0.9",
+    "optuna>=4.0,<5.0",
+    "openml>=0.15,<0.16",
+]
+
+[project.optional-dependencies]
+# Baselines GBDT e modelos disponíveis no pytabkit (TabM, RealMLP, FT-Transformer, xRFM).
+baselines = [
+    "torch>=2.10,<2.14",
+    "pytabkit[models]>=1.7.3,<1.8",
+    "lightgbm>=4.6,<4.8",
+    "xgboost>=3.0,<3.4",
+    "catboost>=1.2.8,<1.3",
+]
+# Um extra por modelo tema que exige pacote próprio.
+tabpfn = ["tabpfn>=9.1,<10"]
+tabicl = ["tabicl>=2.2,<3"]
+tabdpt = ["tabdpt>=1.3.1,<1.4"]
+modernnca = [
+    "TALENT @ git+https://github.com/LAMDA-Tabular/TALENT.git@98982111668144db68910c9ba626a7ef621c9e74",
+]
+ebm = ["interpret>=0.7.8,<0.8"]
+aplr = ["aplr>=10.27,<11"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0,<10.0",
+    "ruff>=0.5,<1.0",
+    "jupyter>=1.0,<2.0",
+    "ipykernel>=6.29,<8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src", "data"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short -m 'not model'"
+markers = [
+    "acceptance: teste de aceitação de componente implementado pelo grupo (xfail até implementar)",
+    "model: testes adicionais do modelo tema usados na correção (pytest -m model)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+# Arquivos com trechos a implementar pelo grupo: os imports já indicam as ferramentas esperadas.
+"src/models/wrappers.py" = ["F401"]
+"src/pipeline/{demsar,bootstrap,regime,overfitting,class_errors}.py" = ["F401"]
+"src/reports/*.py" = ["F401"]

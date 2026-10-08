@@ -1,0 +1,360 @@
+% =============================================================================
+% Template do Relatório Final do Projeto de Aprendizagem de Máquina (pós).
+% Disciplina IN1102. Oferta 2026.2 (release 2026.2.1).
+% Repositório-template: projeto-final-IN1102-2026.2.
+% Cada seção traz caixas \tarefagrupo{...}, visíveis no PDF, indicando o que
+% escrever; substitua cada caixa pelo texto do grupo.
+% Limite recomendado: 25 páginas (sem apêndices).
+% Compilar com: pdflatex relatorio.tex (duas passadas).
+% =============================================================================
+\documentclass[11pt,a4paper]{article}
+\input{../common/preamble.tex}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\sloppy
+
+\hypersetup{pdftitle={Relatório Final: Projeto de Aprendizagem de Máquina (IN1102, pós), 2026.2}}
+
+\title{\bfseries Relatório Final do Projeto\\[0.3em]
+       \large Disciplina de Aprendizagem de Máquina (IN1102, pós-graduação)}
+\author{Grupo: \textbf{[NOMES DOS INTEGRANTES]}\\
+        Modelo tema: \textbf{[NOME DO MODELO]}}
+\date{2026.2}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+[Resumo do projeto em 5 a 8 linhas: modelo tema, os 30 datasets do
+TabArena-v0.1 utilizados, protocolo (CV aninhada: folds oficiais como CV
+externa, busca e estudos por CV interna no treino, teste usado uma única vez
+após o congelamento), métrica primária, principal achado do estudo de
+overfitting, resultado do teste de Friedman com Iman-Davenport e das
+comparações com o controle (Holm), efeito da busca (Wilcoxon) e principal
+conclusão sobre os regimes em que o modelo é competitivo.]
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+% =============================================================================
+\section{Introdução}
+% =============================================================================
+
+\subsection{Contexto e motivação}
+\tarefagrupo{situe a classificação tabular como domínio em que métodos baseados em árvores de decisão com gradient boosting ainda são referência, com novos paradigmas emergindo (modelos de fundação com aprendizado em contexto, MLPs modernas, modelos aditivos interpretáveis, métodos baseados em vizinhança e em kernels). Justifique a relevância da comparação sistemática em múltiplos datasets.}
+
+\subsection{Modelo tema}
+\tarefagrupo{nome, versão, ano, autores, URL do repositório oficial, pacote e extra utilizados e por que o modelo é representativo da literatura recente.}
+
+\subsection{Contribuições do trabalho}
+\tarefagrupo{liste em 3 a 5 itens o que este relatório entrega (implementação do modelo tema compatível com scikit-learn, estudo de overfitting e viés-variância, comparação com os baselines nos 30 datasets sob um protocolo de treino, validação e teste sem vazamento, implementação e aplicação do protocolo de Demšar (2006), análise por regime e de custo, model card).}
+
+% =============================================================================
+\section{Etapa 1: Fundamentação teórica do modelo}
+% =============================================================================
+
+\subsection{Motivação e contexto histórico}
+\tarefagrupo{descreva em 1 a 2 parágrafos a intuição por trás do modelo e a linha de trabalhos que o originou. Qual problema o modelo tenta resolver de forma diferente dos baselines?}
+
+\subsection{Arquitetura e formulação}
+\tarefagrupo{detalhe a arquitetura com um diagrama de blocos (figura) e a formulação matemática essencial (função de perda, regularização, inferência). Use um ambiente \texttt{figure} com \texttt{\textbackslash includegraphics}.}
+
+\subsection{Forma de aprendizado e representação dos padrões}
+\tarefagrupo{como o modelo aprende (treino por gradiente, pré-treino em dados sintéticos com aprendizado em contexto, boosting cíclico, etc.) e como representa os padrões nos dados (embeddings, funções de forma, vizinhanças, kernels). Como trata atributos categóricos e valores ausentes?}
+
+\subsection{Complexidade computacional}
+\tarefagrupo{tempo e memória em função de n (instâncias) e p (atributos), em treino e em inferência. Liste o pico de memória observado nos experimentos (RAM ou VRAM) e o hardware usado.}
+
+\subsection{Posicionamento na literatura}
+\tarefagrupo{situe o modelo entre os trabalhos de 2023 a 2026. Quais são os trabalhos correlatos e as alternativas que ele supera ou complementa? Como aparece no TabArena? Cite de 5 a 10 referências relevantes.}
+
+\subsection{Hiperparâmetros principais e espaço de busca}
+\tarefagrupo{tabela com os hiperparâmetros do modelo, a configuração padrão usada em \texttt{group\_default} e as faixas usadas na busca (\texttt{group\_tuned}), com a justificativa a priori de cada faixa (artigo original, documentação, TabArena). O espaço de busca é definido antes de qualquer resultado e não pode ser revisto depois do teste.}
+
+\begin{table}[h]
+\centering
+\caption{Hiperparâmetros principais do modelo tema: configuração padrão e espaço de busca.}
+\label{tab:hp}
+\begin{tabular}{l p{2.6cm} p{3.6cm} p{5.0cm}}
+\toprule
+\textbf{Hiperparâmetro} & \textbf{Padrão} & \textbf{Tipo e faixa} & \textbf{Justificativa} \\
+\midrule
+{}[hp1] & [valor] & [inteiro, log-uniforme, etc.] & [referência ou heurística] \\
+{}[hp2] & [...]   & [...]                         & [...] \\
+{}[hp3] & [...]   & [...]                         & [...] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Aplicações práticas e limitações}
+\tarefagrupo{domínios em que o modelo é usado ou recomendado e suas limitações conhecidas (tamanho máximo, número de classes, dependência de GPU, licença de pesos, interpretabilidade).}
+
+% =============================================================================
+\section{Etapa 2: Estudo experimental}
+% =============================================================================
+
+\subsection{Seleção dos datasets}
+\tarefagrupo{descreva os critérios, baseados apenas no catálogo e definidos antes de qualquer resultado, usados para escolher 10 entre os 12 datasets pequenos (n $<$ 2.500) e 10 entre os 16 grandes (n $\geq$ 10.000); os 10 médios são comuns a todos os grupos. Comente a cobertura de problemas binários e multiclasse, proporção de categóricos e valores ausentes. Informe a saída do validador (\texttt{python -m src.pipeline.check\_selection}). A tabela completa vai no Apêndice~\ref{ap:datasets}.}
+
+\subsection{Protocolo experimental: treino, validação e teste}
+\tarefagrupo{descreva o protocolo efetivamente seguido, com um diagrama do fluxo (adapte a Figura 2 do enunciado, que mostra o fluxo do protocolo): (a) papéis dos dados (treino ajusta, validação escolhe, teste estima uma única vez); (b) CV aninhada: os 3 folds oficiais do OpenML (repetição 0) como CV externa e a CV interna de 3 folds no treino de cada fold externo, onde ficam a busca e todos os estudos; (c) orçamento da busca com Optuna (TPE): 20 tentativas, limite de 600 s verificado entre tentativas (relate o tempo efetivo \texttt{tune\_time\_s}), subamostra estratificada de 10.000 instâncias quando o treino excede esse tamanho; (d) decisões declaradas a priori (espaço de busca, com a origem das faixas e sem uso dos resultados por dataset do leaderboard do TabArena; subconjunto de datasets dos estudos; grades) e onde estão registradas; (e) papel de \texttt{validation.csv}, apenas diagnóstico, e a lista das correções de falha de execução feitas depois de \texttt{run\_validation} (causa e alteração), se houver; (f) congelamento: data, commit e sha256 de \texttt{results/protocolo.lock}, commit do lock (anterior ao teste), commit dos resultados, saída de \texttt{check\_protocol} e se houve recongelamento antes do teste (por quê); (g) métricas AUC OvO (primária), ACC, G-Mean, CE e custo decomposto em busca, treino e predição; imputação (mediana e indicador) nos baselines e nos modelos do pytabkit; sementes; regra de completude para o N da análise. Explique como o protocolo evita vazamento de dados e por que a evidência é o histórico git.}
+
+\begin{table}[h]
+\centering
+\caption{Fases do protocolo e arquivos produzidos (preencha datas, commit e contagens).}
+\label{tab:fases}
+\footnotesize
+\begin{tabular}{l l p{3.9cm} p{4.1cm}}
+\toprule
+\textbf{Fase} & \textbf{Comando} & \textbf{Arquivos} & \textbf{Registro} \\
+\midrule
+Desenvolvimento & \texttt{run\_validation} & \texttt{validation.csv}, \texttt{validation\_train.csv}, \texttt{preds\_val/} & [linhas ok / erro; tempo total; correções de falha] \\
+Estudos & notebooks 02, 03 e 05 & \texttt{results/figures/} & [datasets e grades declarados] \\
+Congelamento & \texttt{freeze}, \texttt{git commit} & \texttt{protocolo.lock} & [data; commit do lock; sha256] \\
+Avaliação final & \texttt{final\_test}, \texttt{git commit} & \texttt{test.csv}, \texttt{preds/}, \texttt{test\_log.csv}, \texttt{test\_manifest.json} & [execuções e retomadas justificadas; commit dos resultados] \\
+Conferência & \texttt{check\_protocol} & (saída no terminal) & [aprovado ou reprovado; avisos] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Sistemas comparados}
+\tarefagrupo{descreva \texttt{group\_default} e \texttt{group\_tuned} e os três baselines (LightGBM, XGBoost e CatBoost com a configuração padrão TD do pytabkit, Holzmüller et al., 2024). Discuta a assimetria de busca entre o modelo do grupo e os baselines.}
+
+\subsection{Sensibilidade e estudo específico do modelo}
+\tarefagrupo{obrigatório para os grupos cujo modelo tem API scikit-learn nativa (TabPFN-3.5, TabICL v2, TabM, RealMLP, FT-Transformer, xRFM, EBM e APLR): (a) estudo de sensibilidade a 2 hiperparâmetros com \texttt{cv\_grid} (grade declarada a priori, validação cruzada interna no treino de um fold externo de um subconjunto declarado de datasets, demais hiperparâmetros na configuração padrão), com treino e validação; (b) estudo específico do modelo, com o mesmo protocolo (por exemplo, tamanho do contexto ou número de estimadores nos modelos de contexto, limite de interações no EBM e no APLR). Os estudos são diagnósticos: não alteram o espaço de busca congelado. Grupos de TabDPT-1.3, ModernNCA e TabR, que implementam o wrapper completo, removem esta subseção.}
+
+\subsection{Estudo de overfitting e viés-variância}
+\tarefagrupo{feito apenas na fase de desenvolvimento (\texttt{results/validation.csv}, \texttt{results/validation\_train.csv} e notebook \arquivo{05\_overfitting.ipynb}). (a) Lacuna de generalização orientada (treino menos validação para AUC OvO; validação menos treino para CE) de todos os sistemas, geral e por regime de tamanho, com a Tabela~\ref{tab:lacuna} e a figura de barras; (b) curvas de validação de complexidade, por CV interna no treino de um fold externo, para um hiperparâmetro de complexidade do modelo tema e para \texttt{num\_leaves} do LightGBM, em um dataset por regime declarado a priori, com a Tabela~\ref{tab:curvas} e as figuras; (c) escolha pela melhor média e pela regra de 1 erro padrão, e comparação com a faixa do espaço de busca; (d) erros por classe: matriz de confusão normalizada e recall por classe dos cinco sistemas nas predições de validação interna (\texttt{results/preds\_val/}, \texttt{confusion\_table}, \texttt{recall\_per\_class}, \texttt{plot\_confusion}), nunca nas de teste; (e) leitura viés-variância. Discuta as cautelas: a métrica de treino é otimista e quase trivial em modelos de contexto e de vizinhança; a validação de \texttt{group\_tuned} é otimista; as curvas usam um único fold externo. Responda às sete perguntas do notebook 05 (as perguntas 6 e 7 tratam dos erros por classe).}
+
+\begin{table}[h]
+\centering
+\caption{Lacuna de generalização por sistema (AUC OvO, CV interna no treino dos folds externos; saída de \texttt{generalization\_gap}). Lacuna $> 0$ indica overfitting.}
+\label{tab:lacuna}
+\footnotesize
+\begin{tabular}{l c c c c c}
+\toprule
+\textbf{Sistema} & \textbf{Pares} & \textbf{Treino} & \textbf{Validação} & \textbf{Lacuna média} & \textbf{Desvio} \\
+\midrule
+group\_default & xx & 0,xxx & 0,xxx & 0,0xx & 0,0xx \\
+group\_tuned (validação otimista) & xx & 0,xxx & 0,xxx & 0,0xx & 0,0xx \\
+LightGBM (TD) & xx & 0,xxx & 0,xxx & 0,0xx & 0,0xx \\
+XGBoost (TD)  & xx & 0,xxx & 0,xxx & 0,0xx & 0,0xx \\
+CatBoost (TD) & xx & 0,xxx & 0,xxx & 0,0xx & 0,0xx \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Curvas de validação de complexidade: valor escolhido pela melhor média e pela regra de 1 EP (saída de \texttt{select\_complexity}); ``Na faixa?'' indica se o valor escolhido pela regra de 1 EP está dentro da faixa declarada em \texttt{search\_space}.}
+\label{tab:curvas}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l l l l c c c}
+\toprule
+\textbf{Dataset} & \textbf{Regime} & \textbf{Modelo} & \textbf{Hiperparâmetro (grade)} & \textbf{Melhor} & \textbf{1 EP} & \textbf{Na faixa?} \\
+\midrule
+{}[d1] & pequeno & [modelo tema] & [hp] ([grade]) & [v] & [v] & [sim/não] \\
+{}[d1] & pequeno & LightGBM & num\_leaves (2 a 128) & [v] & [v] & N/A \\
+\multicolumn{7}{c}{...} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+% caminho relativo a entregaveis/fontes/relatorio-template/ no repositório do grupo
+% \includegraphics[width=0.48\textwidth]{../../../results/figures/lacuna_auc_ovo.png}
+% \includegraphics[width=0.48\textwidth]{../../../results/figures/curva_grupo_<task>.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{1.5em}[lacuna por sistema, curvas de validação (treino e validação com faixa de média $\pm$ 1 EP entre folds internos) e matrizes de confusão de validação]\vspace{1.5em}}}
+\caption{Estudo de overfitting: lacuna treino-validação por sistema, curvas de validação de complexidade e erros por classe na validação (figuras de \texttt{plot\_generalization\_gap}, \texttt{plot\_validation\_curve} e \texttt{plot\_confusion}).}
+\label{fig:overfitting}
+\end{figure}
+
+\subsection{Implementação}
+\tarefagrupo{descreva o que o grupo implementou (wrapper ou construção do modelo tema, espaço de busca, \texttt{demsar.py}, \texttt{bootstrap\_ci}, \texttt{overfitting.py}, \texttt{class\_errors.py}, agregações por regime, tabelas e gráficos), decisões de projeto, dificuldades e a situação dos testes de aceitação (todos passando em modo estrito?). Não copie código extenso no relatório; cite os arquivos do repositório.}
+
+\subsection{Avaliação final}
+\tarefagrupo{descreva a execução de \texttt{final\_test} (data, sha256 do lock, commit do lock e commit dos resultados, número de execuções em \texttt{results/test\_log.csv} e justificativa de cada retomada com \texttt{-{}-resume}, combinações com falha, resultado de \texttt{check\_protocol}). Compare, de forma descritiva, a métrica média na validação interna (\texttt{validation.csv}) com a do teste (\texttt{test.csv}) para cada sistema e discuta o otimismo da fase de desenvolvimento, em especial em \texttt{group\_tuned}. Os resultados de teste são apresentados tal como obtidos; nada foi ajustado depois deles.}
+
+\begin{table}[h]
+\centering
+\caption{Validação interna vs.\ teste (AUC OvO, média entre os $N$ datasets completos).}
+\label{tab:val-teste}
+\footnotesize
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Sistema} & \textbf{Validação interna} & \textbf{Teste} & \textbf{Diferença} \\
+\midrule
+group\_default & 0,xxx & 0,xxx & 0,0xx \\
+group\_tuned   & 0,xxx (otimista) & 0,xxx & 0,0xx \\
+LightGBM (TD)  & 0,xxx & 0,xxx & 0,0xx \\
+XGBoost (TD)   & 0,xxx & 0,xxx & 0,0xx \\
+CatBoost (TD)  & 0,xxx & 0,xxx & 0,0xx \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Resultados gerais}
+\tarefagrupo{tabela com média e desvio entre datasets no teste (\texttt{results/test.csv}; cada dataset resumido pela média dos testes dos 3 folds externos) e posto médio. Inclua os cinco sistemas.}
+
+\begin{table}[h]
+\centering
+\caption{Resultados agregados: média $\pm$ desvio padrão entre os $N$ datasets completos.}
+\label{tab:resultados}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l c c c c c c}
+\toprule
+\textbf{Sistema} & \textbf{AUC OvO} & \textbf{ACC} & \textbf{G-Mean} & \textbf{CE} & \textbf{Tempo (s)} & \textbf{Posto médio} \\
+\midrule
+group\_default & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & xxx & N/A \\
+group\_tuned   & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & xxx & x,xx \\
+LightGBM (TD)                     & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & xxx & x,xx \\
+XGBoost (TD)                      & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & xxx & x,xx \\
+CatBoost (TD)                     & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & 0,xx $\pm$ 0,0xx & xxx & x,xx \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Análise estatística (Demšar, 2006)}
+\tarefagrupo{aplique o protocolo com a métrica primária declarada antes da análise. Para cada passo, reporte os números e interprete: (a) Friedman com Iman-Davenport: $\chi^2_F$, $F_F$, graus de liberdade, p e decisão (por que a decisão é tomada por $F_F$); (b) \texttt{group\_tuned} como controle: tabela de Holm (diferença de postos, z, p, p ajustado) e diagrama de Bonferroni-Dunn; (c) complementar: Nemenyi e diagrama CD; interpretação dos grupos; os itens (b) e (c) só são interpretados como testes se $F_F$ rejeitar a hipótese nula, e caso contrário são apresentados como descrição; (d) padrão vs. com busca: Wilcoxon (número de diferenças usado, R+, R-, T, p, vitórias, empates e derrotas); (e) Wilcoxon com Holm por par (\texttt{wilcoxon\_vs\_control}, função obrigatória); a discussão de eventuais divergências em relação a (b) é opcional. Inclua as figuras geradas em results/figures/.}
+
+\begin{table}[h]
+\centering
+\caption{Modelo do grupo (group\_tuned) como controle: procedimento de Holm sobre as estatísticas $z$ dos postos médios ($k = 4$, $N = $ [N], $\alpha = 0{,}05$). Decisões interpretadas como teste apenas se $F_F$ rejeitar a hipótese nula.}
+\label{tab:holm}
+\footnotesize
+\begin{tabular}{l c c c c c}
+\toprule
+\textbf{Sistema} & \textbf{$R_i - R_c$} & \textbf{$z$} & \textbf{p} & \textbf{p ajustado (Holm)} & \textbf{Decisão} \\
+\midrule
+LightGBM (TD) & x,xx & x,xx & 0,xxx & 0,xxx & [rejeita / não rejeita] \\
+XGBoost (TD)  & x,xx & x,xx & 0,xxx & 0,xxx & [...] \\
+CatBoost (TD) & x,xx & x,xx & 0,xxx & 0,xxx & [...] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Incerteza no conjunto de teste}
+\tarefagrupo{intervalos de 95\% por bootstrap percentil sobre as predições de teste, por dataset e fold, listados no Apêndice~\ref{ap:bootstrap}. No corpo do texto, resuma-os pela mediana da largura dos intervalos (por sistema e métrica): a média dos limites entre datasets não é um intervalo de confiança da média entre datasets. Explique o que esse intervalo mede e o que não mede (variabilidade entre folds e entre datasets é tratada na seção anterior).}
+
+\subsection{Análise por regime}
+\tarefagrupo{análise descritiva em quatro eixos: (i) tamanho (pequeno, médio, grande); (ii) número de classes (binário vs. multiclasse); (iii) proporção de atributos categóricos (baixa vs. alta, limiar de 25\%); (iv) presença de valores ausentes. Informe o número de datasets em cada célula e explique por que a análise não é inferencial.}
+
+\subsection{Custo vs. desempenho}
+\tarefagrupo{gráfico de tempo total mediano por fold (escala log) vs. métrica média para os cinco sistemas. Discuta o custo da busca e a fronteira de Pareto, posicionando o modelo do grupo.}
+
+\subsection{Respostas ao roteiro de análise}
+\tarefagrupo{responda às seis perguntas do roteiro de análise estatística (notebook \arquivo{04\_analise\_estatistica.ipynb}), inclusive a repetição da análise para uma métrica secundária e o tratamento da multiplicidade entre métricas. As sete perguntas do notebook \arquivo{05\_overfitting.ipynb} são respondidas na subseção do estudo de overfitting.}
+
+% =============================================================================
+\section{Discussão}
+% =============================================================================
+
+\tarefagrupo{4 a 6 parágrafos. Em quais regimes o modelo do grupo é competitivo e em quais perde para os baselines? A busca compensa o custo? Diferenças estatisticamente significativas são relevantes na prática? Os achados do estudo de overfitting ajudam a explicar o desempenho no teste? Como os resultados se relacionam com a arquitetura descrita na Etapa 1?}
+
+\subsection{Ameaças à validade}
+\tarefagrupo{assimetria de busca (baselines sem busca), imputação, subamostragem, falhas de execução, retomadas da avaliação final e datasets excluídos pela regra de completude, número de datasets por célula de regime, possível sobreposição entre os datasets de avaliação e os dados de pré-treino ou meta-aprendizado. Protocolo: otimismo da validação interna de \texttt{group\_tuned}; estudos e curvas feitos no treino de um único fold externo e em poucos datasets (o treino do fold externo 0 contém o teste dos folds 1 e 2, por isso os estudos não alimentaram o sistema avaliado); métrica de treino medida em subamostra de até 2.000 instâncias e quase trivial em modelos de contexto e de vizinhança; recongelamentos antes do teste, se houver; correções de falha de execução feitas depois de \texttt{run\_validation}; origem das faixas do espaço de busca (artigo, documentação, espaços publicados pelo TabArena) e possível influência indireta de resultados publicados nas mesmas partições.}
+
+\subsection{Extensão opcional: análise bayesiana}
+\tarefagrupo{(opcional) se o grupo realizar a análise bayesiana de Benavoli et al. (2017), declare a ROPE antes da análise, descreva a implementação e compare as conclusões com as da análise de Demšar. Caso contrário, remova esta subseção.}
+
+% =============================================================================
+\section{Reprodutibilidade}
+% =============================================================================
+
+\tarefagrupo{nome do repositório do grupo (criado a partir do repositório-template \texttt{projeto-final-IN1102-2026.2}, privado e com acesso concedido ao professor), versão do Python, extras instalados e uv.lock, hardware (CPU, GPU, RAM; partes executadas no Colab), comandos mínimos para reproduzir, hash do commit congelado (o de \texttt{protocolo.lock}), commit do lock e dos resultados, sha256 do lock, resumo de \texttt{test\_log.csv}, saída de \texttt{check\_protocol}, tempo total de execução nas duas fases e situação da CI.}
+
+\begin{verbatim}
+uv sync --frozen --extra baselines --extra <modelo>
+uv run python -m src.pipeline.check_selection
+uv run python -m src.pipeline.run_validation
+git add -A && git commit -m "Código final do desenvolvimento"
+uv run python -m src.pipeline.freeze
+git add results/protocolo.lock && git commit -m "Congela o protocolo"
+uv run python -m src.pipeline.final_test
+git add results && git commit -m "Avaliação final"
+uv run python -m src.pipeline.check_protocol
+AM_STRICT=1 uv run pytest
+\end{verbatim}
+
+% =============================================================================
+\section*{Referências}
+\addcontentsline{toc}{section}{Referências}
+% =============================================================================
+
+\tarefagrupo{liste artigos, documentações e bibliotecas. Use bibtex ou liste manualmente.}
+\begin{itemize}[leftmargin=1.2em]
+\item {[artigo original do modelo]}
+\item Demšar, J. (2006). Statistical Comparisons of Classifiers over Multiple Data Sets. JMLR, 7, 1-30.
+\item Benavoli, A., Corani, G., Mangili, F. (2016). Should We Really Use Post-Hoc Tests Based on Mean-Ranks? JMLR, 17(5), 1-10.
+\item Holzmüller, D., Grinsztajn, L., Steinwart, I. (2024). Better by Default: Strong Pre-Tuned MLPs and Boosted Trees on Tabular Data. NeurIPS.
+\item Hastie, T., Tibshirani, R., Friedman, J. (2009). The Elements of Statistical Learning, 2.\textsuperscript{a} ed. Springer.
+\item Cawley, G. C., Talbot, N. L. C. (2010). On Over-fitting in Model Selection and Subsequent Selection Bias in Performance Evaluation. JMLR, 11, 2079-2107.
+\item Varma, S., Simon, R. (2006). Bias in Error Estimation When Using Cross-Validation for Model Selection. BMC Bioinformatics, 7, 91.
+\item Breiman, L., Friedman, J. H., Olshen, R. A., Stone, C. J. (1984). Classification and Regression Trees. Wadsworth.
+\item TabArena-v0.1 (NeurIPS 2025): https://tabarena.ai
+\end{itemize}
+
+\appendix
+
+% =============================================================================
+\section{Tabela dos 30 datasets selecionados}
+\label{ap:datasets}
+% =============================================================================
+
+\tarefagrupo{preencha com os 30 datasets (10 pequenos + 10 médios + 10 grandes). A tabela pode ser gerada por \texttt{python -m src.pipeline.check\_selection -{}-markdown results/tabela\_datasets.md}.}
+
+\begin{table}[h]
+\centering
+\caption{Datasets do TabArena-v0.1 utilizados, agrupados por regime.}
+\label{tab:datasets}
+\footnotesize
+\begin{tabular}{l r r r r r c l}
+\toprule
+\textbf{Dataset} & \textbf{Task ID} & \textbf{n} & \textbf{Atributos} & \textbf{Classes} & \textbf{\% categ.} & \textbf{Ausentes} & \textbf{Regime} \\
+\midrule
+{}[d1]  & xxxxxx & xxx     & xx & x & xx & sim/não & pequeno \\
+\multicolumn{8}{c}{...} \\
+{}[d10] & xxxxxx & xxx     & xx & x & xx & sim/não & pequeno \\
+{}[d11] & xxxxxx & x.xxx   & xx & x & xx & sim/não & médio \\
+\multicolumn{8}{c}{...} \\
+{}[d20] & xxxxxx & x.xxx   & xx & x & xx & sim/não & médio \\
+{}[d21] & xxxxxx & xx.xxx  & xx & x & xx & sim/não & grande \\
+\multicolumn{8}{c}{...} \\
+{}[d30] & xxxxxx & xxx.xxx & xx & x & xx & sim/não & grande \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+\section{Espaço de busca e histórico do Optuna}
+% =============================================================================
+
+\tarefagrupo{liste o espaço de busca efetivamente utilizado (hiperparâmetro, tipo, faixa, escala) e resuma o histórico da busca (melhores tentativas, convergência, hiperparâmetros mais sensíveis). O histórico pode ser o de buscas executadas com \texttt{tune()} no notebook 03 (célula de histórico; treino do fold externo 0, um dataset por regime, de preferência com o orçamento do enunciado), pois \texttt{run\_validation} e \texttt{final\_test} não gravam as tentativas; os hiperparâmetros escolhidos em cada fold vêm da coluna \texttt{params} de \texttt{validation.csv}. Para os baselines, basta indicar que a configuração padrão TD foi usada sem busca.}
+
+% =============================================================================
+\section{Resultados por dataset}
+% =============================================================================
+
+\tarefagrupo{tabela dataset x sistema com média $\pm$ desvio da métrica primária nos testes dos 3 folds externos (\texttt{per\_dataset\_table} sobre \texttt{results/test.csv}) e a lista de falhas registradas em \texttt{results/test.csv} e \texttt{results/validation.csv}, se houver.}
+
+% =============================================================================
+\section{Registro do protocolo}
+% =============================================================================
+
+\tarefagrupo{transcreva o conteúdo essencial de \texttt{results/protocolo.lock} (hashes, assinatura do espaço de busca, orçamento, semente, sistemas, folds, task IDs, commit), as linhas de \texttt{results/test\_log.csv} (eventos de início, fim e recusa, horários, sha256 do lock, git\_head; retomadas) e a saída completa de \texttt{python -m src.pipeline.check\_protocol}. Indique o subconjunto de datasets e as grades dos estudos declarados a priori. Informe o \textit{hash} do \textit{commit} de \texttt{docs/declaracoes\_a\_priori.md}.}
+
+% =============================================================================
+\section{Intervalos de confiança por bootstrap}
+\label{ap:bootstrap}
+% =============================================================================
+
+\tarefagrupo{tabela com o intervalo de 95\% (bootstrap percentil) por dataset, fold e sistema para a métrica primária (\texttt{bootstrap\_table}), com a largura de cada intervalo. Indique a mediana da largura usada no corpo do relatório.}
+
+\end{document}

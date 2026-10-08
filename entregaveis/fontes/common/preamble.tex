@@ -1,0 +1,51 @@
+% Preâmbulo compartilhado dos artefatos LaTeX da disciplina de Aprendizagem
+% de Máquina (graduação e pós-graduação).
+%
+% Regras editoriais: sem emojis, sem travessões, português do Brasil com
+% acentuação correta. Arquivos em UTF-8 sem BOM.
+%
+% Conjunto de pacotes deliberadamente enxuto para garantir compilação com
+% pdflatex em diferentes instalações (TeX Live, MiKTeX), sem tikz nem
+% microtype.
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\geometry{a4paper,margin=2.5cm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage[hidelinks]{hyperref}
+
+% Cores institucionais aproximadas (CIn-UFPE).
+\definecolor{cinazul}{RGB}{0, 51, 102}
+\definecolor{cinverde}{RGB}{0, 102, 51}
+
+% Macro para título de etapa do projeto: Etapa 1 (teórica) e Etapa 2
+% (experimental), com entrada correspondente no sumário.
+\newcommand{\etapa}[2]{%
+    \section*{Etapa #1: #2}%
+    \addcontentsline{toc}{section}{Etapa #1: #2}%
+}
+
+% Macro para destacar tarefa pendente do grupo em uma caixa visível.
+\newcommand{\tarefagrupo}[1]{%
+    \par\medskip
+    \noindent\fbox{%
+        \begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+        \textbf{Tarefa do grupo:} #1
+        \end{minipage}%
+    }%
+    \par\medskip
+}
+
+% Macro para citar arquivos do repositório em fonte monoespaçada.
+\newcommand{\arquivo}[1]{\texttt{#1}}
+
+\hypersetup{
+    pdfauthor={Prof. Leandro Maciel Almeida},
+    pdfkeywords={aprendizagem de máquina, classificação tabular, projeto final}
+}

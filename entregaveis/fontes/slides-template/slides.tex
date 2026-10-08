@@ -1,0 +1,435 @@
+% =============================================================================
+% Template Beamer dos slides da apresentação final do Projeto de Aprendizagem
+% de Máquina (pós-graduação), disciplina IN1102. Oferta 2026.2 (release 2026.2.1).
+% Repositório-template: projeto-final-IN1102-2026.2.
+% Alvo: 20 minutos cronometrados, em dois blocos contíguos de 10 minutos.
+% Cerca de 24 frames sugeridos.
+% Compilar com: pdflatex slides.tex (duas passadas).
+% =============================================================================
+\documentclass[aspectratio=169,11pt]{beamer}
+
+% Tema padrão (estável). Caso queira metropolis, descomente:
+% \usetheme{metropolis}
+\usetheme{Madrid}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[brazilian]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,decorations.pathreplacing}
+
+\definecolor{cinazul}{RGB}{0, 51, 102}
+\definecolor{azulclaro}{RGB}{204, 224, 245}
+\definecolor{cinzaescuro}{RGB}{90, 90, 90}
+\definecolor{laranja}{RGB}{204, 102, 0}
+\definecolor{verdeescuro}{RGB}{0, 102, 51}
+
+% Estilos do diagrama do protocolo (definidos fora dos frames).
+\tikzset{
+    bloco/.style={minimum height=0.55cm, minimum width=1.5cm, draw=white, line width=0.8pt, inner sep=0pt},
+    treino/.style={bloco, fill=azulclaro, text=cinazul},
+    teste/.style={bloco, fill=cinzaescuro, text=white},
+    etapa/.style={draw=#1, line width=0.8pt, fill=#1!7, rounded corners=2pt, text width=3.4cm, align=center, inner sep=4pt, minimum height=2.4cm, font=\scriptsize},
+    seta/.style={-{Stealth[length=2.2mm]}, thick, draw=black!70}
+}
+
+\title[Projeto Final de AM (IN1102)]{Projeto Final: Aprendizagem de Máquina (IN1102, pós)}
+\subtitle{Modelo tema: \textbf{[NOME DO MODELO]}}
+\author{Grupo: \textbf{[INTEGRANTES]}}
+\institute[CIn/UFPE]{Pós-graduação, CIn/UFPE, 2026.2}
+\date{Apresentação}
+
+\begin{document}
+
+% Slide 1: capa
+% Apresenta: integrante 1
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Slide 2: agenda
+% Apresenta: integrante 1
+\begin{frame}{Agenda}
+    \textbf{Etapa 1: fundamentação teórica do modelo (10 minutos)}
+    \begin{itemize}
+        \item Motivação, contexto e intuição
+        \item Arquitetura, formulação e forma de aprendizado
+        \item Complexidade, hiperparâmetros e posicionamento na literatura
+        \item Aplicações e limitações
+    \end{itemize}
+    \textbf{Etapa 2: estudo experimental (10 minutos)}
+    \begin{itemize}
+        \item Seleção dos 30 datasets e protocolo de treino, validação e teste
+        \item Estudo de overfitting e viés-variância
+        \item Resultados no teste e teste de Friedman (Iman-Davenport)
+        \item Controle com Holm e Bonferroni-Dunn; Nemenyi e diagrama CD
+        \item Padrão vs.\ com busca, regimes, custo e conclusões
+    \end{itemize}
+\end{frame}
+
+% =====================================================================
+% ETAPA 1: 10 minutos
+% =====================================================================
+
+% Slide 3: motivação
+% Apresenta: integrante 2
+\begin{frame}{Etapa 1: motivação e contexto}
+    \begin{itemize}
+        \item Classificação tabular: \textit{gradient boosting} ainda é referência.
+        \item Novos paradigmas: modelos de fundação com aprendizado em contexto, MLPs modernas, modelos aditivos, métodos de vizinhança e de \textit{kernels}.
+        \item \textbf{Pergunta:} em quais regimes o modelo [X] é competitivo com LightGBM, XGBoost e CatBoost?
+    \end{itemize}
+    \vspace{0.4em}
+    \footnotesize Contexto histórico: [trabalhos que originaram o modelo].
+\end{frame}
+
+% Slide 4: intuição
+% Apresenta: integrante 2
+\begin{frame}{Etapa 1: intuição do modelo}
+    \begin{columns}[T,onlytextwidth]
+        \column{0.55\textwidth}
+        \begin{itemize}
+            \item Ideia central em uma frase: [...].
+            \item Diferença em relação aos baselines: [...].
+            \item Fundamento teórico ou heurístico: [...].
+        \end{itemize}
+        \column{0.45\textwidth}
+        % \includegraphics[width=\linewidth]{caminho/figura_conceitual.png}
+        \centering [diagrama conceitual]
+    \end{columns}
+\end{frame}
+
+% Slide 5: arquitetura
+% Apresenta: integrante 2
+\begin{frame}{Etapa 1: arquitetura}
+    \centering
+    % \includegraphics[width=0.85\textwidth]{caminho/diagrama_arquitetura.png}
+    [diagrama de blocos da arquitetura]
+    \\[0.4em]
+    \footnotesize Componentes principais: [bloco A], [bloco B], [bloco C].
+\end{frame}
+
+% Slide 6: formulação e forma de aprendizado
+% Apresenta: integrante 3
+\begin{frame}{Etapa 1: formulação e forma de aprendizado}
+    \begin{itemize}
+        \item Função de perda: [...]
+        \item Regularização: [...]
+        \item Como aprende: [treino por gradiente, pré-treino, boosting, ...]
+        \item Representação dos padrões: [embeddings, funções de forma, vizinhanças, ...]
+        \item Categóricos e valores ausentes: [tratamento]
+    \end{itemize}
+\end{frame}
+
+% Slide 7: complexidade e memória
+% Apresenta: integrante 3
+\begin{frame}{Etapa 1: complexidade computacional}
+    \footnotesize
+    \begin{tabular}{l c c c}
+        \toprule
+        \textbf{Operação} & \textbf{Tempo} & \textbf{Memória} & \textbf{Observação} \\
+        \midrule
+        Treino     & O(...) & O(...) & [crescimento com n e p] \\
+        Inferência & O(...) & O(...) & [latência típica] \\
+        \bottomrule
+    \end{tabular}
+    \vspace{0.5em}
+    \\
+    Pico de memória observado: [valor em GB] em [dataset]; hardware: [CPU/GPU].
+\end{frame}
+
+% Slide 8: hiperparâmetros
+% Apresenta: integrante 3
+\begin{frame}{Etapa 1: hiperparâmetros e espaço de busca}
+    \footnotesize
+    \begin{tabular}{l p{2.4cm} p{3.6cm} p{4.2cm}}
+        \toprule
+        \textbf{Hiperparâmetro} & \textbf{Padrão} & \textbf{Faixa de busca (Optuna)} & \textbf{Efeito esperado} \\
+        \midrule
+        {}[hp1] & [...] & [...] & [compromisso entre viés e variância] \\
+        {}[hp2] & [...] & [...] & [efeito sobre o tempo de treino] \\
+        {}[hp3] & [...] & [...] & [...] \\
+        \bottomrule
+    \end{tabular}
+    \\[0.4em]
+    \footnotesize Fonte das faixas: [artigo, documentação, TabArena].
+\end{frame}
+
+% Slide 9: posicionamento na literatura
+% Apresenta: integrante 4
+\begin{frame}{Etapa 1: posicionamento na literatura}
+    \begin{itemize}
+        \item 2023: [trabalho A].
+        \item 2024: [trabalho B] e [trabalho C].
+        \item 2025: [trabalho D], [trabalho E] e o modelo [X].
+        \item 2026: [trabalhos correlatos recentes; posição no TabArena].
+    \end{itemize}
+    \vspace{0.3em}
+    \footnotesize O modelo [X] se diferencia por: [diferenciador 1], [diferenciador 2].
+\end{frame}
+
+% Slide 10: aplicações e limitações
+% Apresenta: integrante 4
+\begin{frame}{Etapa 1: aplicações e limitações}
+    \begin{itemize}
+        \item Aplicações práticas: [domínios e casos de uso].
+        \item Restrições de tamanho (n e p máximos, número de classes).
+        \item Suposições sobre os dados (IID, tipos de atributos).
+        \item Requisitos: [GPU, memória, licença de pesos].
+    \end{itemize}
+\end{frame}
+
+% =====================================================================
+% ETAPA 2: 10 minutos
+% =====================================================================
+
+% Slide 11: seleção dos datasets e sistemas
+% Apresenta: integrante 5
+\begin{frame}{Etapa 2: datasets, sistemas e métricas}
+    \begin{itemize}
+        \item \textbf{Datasets:} 30 do TabArena-v0.1 (10 pequenos, 10 médios, 10 grandes), escolhidos pelo catálogo antes de qualquer resultado; critério: [...].
+        \item \textbf{Sistemas:} [X] padrão e [X] com busca; LightGBM, XGBoost e CatBoost (TD).
+        \item \textbf{Busca:} Optuna (otimização bayesiana, TPE) no treino de cada fold externo, 20 tentativas, CV interna 3, 600 s por fold (tempo efetivo: [...]), subamostra de até 10.000.
+        \item \textbf{Espaço de busca:} justificado a priori por [artigo, documentação].
+        \item \textbf{Métricas:} AUC OvO (primária), ACC, G-Mean, CE e custo.
+    \end{itemize}
+\end{frame}
+
+% Slide 12: protocolo de treino, validação e teste
+% Apresenta: integrante 5
+\begin{frame}{Etapa 2: protocolo de treino, validação e teste (CV aninhada)}
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[font=\footnotesize]
+    \node[anchor=east] at (0.15,0) {Fold externo 0};
+    \node[teste]  at (1.05,0) {teste};
+    \node[treino] at (2.55,0) {treino};
+    \node[treino] at (4.05,0) {treino};
+    \node[anchor=east] at (0.15,-0.8) {Fold externo 1};
+    \node[treino] at (1.05,-0.8) {treino};
+    \node[teste]  at (2.55,-0.8) {teste};
+    \node[treino] at (4.05,-0.8) {treino};
+    \node[anchor=east] at (0.15,-1.6) {Fold externo 2};
+    \node[treino] at (1.05,-1.6) {treino};
+    \node[treino] at (2.55,-1.6) {treino};
+    \node[teste]  at (4.05,-1.6) {teste};
+    \draw[decorate, decoration={brace, amplitude=5pt}, thick] (4.95,0.3) to (4.95,-1.9);
+    \node[anchor=west, text width=7.6cm, align=left] at (5.25,-0.8) {%
+        \textbf{Treino de cada fold externo:} CV interna de 3 folds com a busca
+        e todos os estudos (sensibilidade, específico, curvas, overfitting).\\[2pt]
+        \textbf{Teste de cada fold externo:} selado; usado uma única vez.};
+    \node[etapa=cinazul] (e1) at (-0.3,-3.75) {%
+        \textbf{1. Desenvolvimento}\\[2pt]
+        \texttt{run\_validation}, notebooks 02, 03 e 05\\[2pt]
+        \texttt{validation.csv} (diagnóstico)};
+    \node[etapa=laranja] (e2) at (3.65,-3.75) {%
+        \textbf{2. Congelamento}\\[2pt]
+        \texttt{freeze} e \texttt{git commit}\\[2pt]
+        \texttt{protocolo.lock}: hashes e orçamento};
+    \node[etapa=cinzaescuro] (e3) at (7.6,-3.75) {%
+        \textbf{3. Avaliação final única}\\[2pt]
+        \texttt{final\_test} e \texttt{git commit}\\[2pt]
+        \texttt{test.csv}, \texttt{test\_log.csv}; \texttt{check\_protocol}};
+    \node[etapa=verdeescuro] (e4) at (11.55,-3.75) {%
+        \textbf{4. Análise}\\[2pt]
+        média dos 3 testes por dataset\\[2pt]
+        Dem\v{s}ar com $N = 30$};
+    \draw[seta] (e1) to (e2);
+    \draw[seta] (e2) to (e3);
+    \draw[seta] (e3) to (e4);
+    \end{tikzpicture}}
+    \\[0.3em]
+    \footnotesize Lock: commit [hash] (anterior aos resultados, commit [hash]), sha256 [...]; execuções em \texttt{test\_log.csv}: [n] ([modos]); \texttt{check\_protocol}: [aprovado]. Declarados a priori: [espaço de busca e origem das faixas, datasets dos estudos, grades].
+\end{frame}
+
+% Slide 13: lacuna de generalização
+% Apresenta: integrante 5
+\begin{frame}{Etapa 2: overfitting, lacuna treino-validação}
+    \begin{columns}[T,onlytextwidth]
+        \column{0.5\textwidth}
+        \footnotesize
+        \begin{tabular}{l c c c}
+            \toprule
+            \textbf{Sistema} & \textbf{Treino} & \textbf{Validação} & \textbf{Lacuna} \\
+            \midrule
+            {}[X] padrão    & 0,xxx & 0,xxx & 0,0xx \\
+            {}[X] com busca & 0,xxx & 0,xxx & 0,0xx \\
+            LightGBM (TD)   & 0,xxx & 0,xxx & 0,0xx \\
+            XGBoost (TD)    & 0,xxx & 0,xxx & 0,0xx \\
+            CatBoost (TD)   & 0,xxx & 0,xxx & 0,0xx \\
+            \bottomrule
+        \end{tabular}
+        \\[0.4em]
+        AUC OvO, CV interna no treino dos folds externos; lacuna $> 0$ indica overfitting.
+        \column{0.5\textwidth}
+        \centering
+        % \includegraphics[width=\linewidth]{caminho/lacuna_auc_ovo.png}
+        [barras da lacuna por sistema]
+    \end{columns}
+    \vspace{0.4em}
+    \footnotesize Leitura: [onde a lacuna é maior; efeito do regime de tamanho; cautela com métrica de treino em modelos de contexto ou de vizinhança e com a validação otimista do sistema com busca].
+\end{frame}
+
+% Slide 14: curvas de validação e regra de 1 EP
+% Apresenta: integrante 5
+\begin{frame}{Etapa 2: curvas de validação e regra de 1 erro padrão}
+    \begin{columns}[T,onlytextwidth]
+        \column{0.5\textwidth}
+        \centering
+        % \includegraphics[width=\linewidth]{caminho/curva_grupo_<task>.png}
+        [curva do modelo tema: hiperparâmetro [hp]]
+        \column{0.5\textwidth}
+        \centering
+        % \includegraphics[width=\linewidth]{caminho/curva_lgbm_<task>.png}
+        [curva do LightGBM: \texttt{num\_leaves}]
+    \end{columns}
+    \vspace{0.6em}
+    \begin{itemize}
+        \footnotesize
+        \item Datasets (declarados a priori, um por regime): [...]; CV interna no treino de um fold externo.
+        \item Melhor média: [valores]; regra de 1 EP: [valores]; dentro da faixa da busca? [sim/não].
+        \item Viés e variância: [região da configuração padrão; subajuste ou sobreajuste].
+        \item Erros por classe na validação (\texttt{plot\_confusion}): [classes com menor recall; relação com o G-Mean].
+    \end{itemize}
+\end{frame}
+
+% Slide 15: resultados gerais
+% Apresenta: integrante 5
+\begin{frame}{Etapa 2: resultados no teste (avaliação final única)}
+    \footnotesize
+    \begin{tabular}{l c c c}
+        \toprule
+        \textbf{Sistema} & \textbf{AUC OvO} & \textbf{Posto médio} & \textbf{Tempo (s)} \\
+        \midrule
+        {}[X] padrão  & 0,xx $\pm$ 0,0xx & N/A  & xxx \\
+        {}[X] com busca & 0,xx $\pm$ 0,0xx & x,xx & xxx \\
+        LightGBM (TD) & 0,xx $\pm$ 0,0xx & x,xx & xxx \\
+        XGBoost (TD)  & 0,xx $\pm$ 0,0xx & x,xx & xxx \\
+        CatBoost (TD) & 0,xx $\pm$ 0,0xx & x,xx & xxx \\
+        \bottomrule
+    \end{tabular}
+    \\[0.3em]
+    \footnotesize Média $\pm$ desvio entre os $N$ = [N] datasets completos (média dos testes dos 3 folds externos por dataset). Validação interna vs.\ teste: [diferença; otimismo do sistema com busca].
+\end{frame}
+
+% Slide 16: Friedman com Iman-Davenport
+% Apresenta: integrante 5
+\begin{frame}{Etapa 2: teste de Friedman com correção de Iman-Davenport}
+    \begin{itemize}
+        \item $k = 4$ sistemas, $N$ = [N] datasets, $\alpha = 0{,}05$.
+        \item $\chi^2_F$ = [valor]; $F_F$ = [valor] com ([gl1], [gl2]) graus de liberdade; p = [valor].
+        \item Decisão (por $F_F$): [rejeita ou não rejeita a hipótese nula]. Se não rejeitar, os pós-testes seguintes são apenas descritivos.
+        \item Datasets excluídos pela regra de completude: [quais e por quê].
+    \end{itemize}
+\end{frame}
+
+% Slide 17: controle com Holm e Bonferroni-Dunn
+% Apresenta: integrante 4
+\begin{frame}{Etapa 2: modelo do grupo como controle (Holm e Bonferroni-Dunn)}
+    \begin{columns}[T,onlytextwidth]
+        \column{0.5\textwidth}
+        \footnotesize
+        \begin{tabular}{l c c}
+            \toprule
+            \textbf{vs.\ controle} & \textbf{$z$} & \textbf{p (Holm)} \\
+            \midrule
+            LightGBM (TD) & x,xx & 0,xxx \\
+            XGBoost (TD)  & x,xx & 0,xxx \\
+            CatBoost (TD) & x,xx & 0,xxx \\
+            \bottomrule
+        \end{tabular}
+        \column{0.5\textwidth}
+        \centering
+        % \includegraphics[width=\linewidth]{caminho/cd_bonferroni_dunn_auc_ovo.png}
+        [diagrama de Bonferroni-Dunn]
+    \end{columns}
+\end{frame}
+
+% Slide 18: Nemenyi e diagrama CD
+% Apresenta: integrante 4
+\begin{frame}{Etapa 2: análise complementar (Nemenyi e diagrama CD)}
+    \centering
+    % \includegraphics[width=0.85\textwidth]{caminho/cd_nemenyi_auc_ovo.png}
+    [diagrama de diferença crítica, Nemenyi]
+    \\[0.4em]
+    \footnotesize CD = [valor]; grupos sem diferença significativa: [...].
+\end{frame}
+
+% Slide 19: padrão vs. com busca
+% Apresenta: integrante 3
+\begin{frame}{Etapa 2: padrão vs.\ com busca (Wilcoxon)}
+    \begin{itemize}
+        \item Diferenças usadas = [n] de $N$ = [N]; $R^+$ = [valor], $R^-$ = [valor], $T$ = [valor], p = [valor].
+        \item Vitórias, empates e derrotas da variante com busca: [v / e / d].
+        \item Custo da busca: [tempo efetivo mediano por fold].
+        \item A busca compensa? [resposta baseada nos números].
+        \item Sensibilidade a 2 hiperparâmetros e estudo específico do modelo (grupos com API scikit-learn nativa): [leitura principal].
+    \end{itemize}
+\end{frame}
+
+% Slide 20: análise por regime
+% Apresenta: integrante 3
+\begin{frame}{Etapa 2: análise por regime (descritiva)}
+    \begin{columns}[T,onlytextwidth]
+        \column{0.5\textwidth}
+        \centering
+        % \includegraphics[width=\linewidth]{caminho/regime_tamanho.png}
+        [tamanho: pequeno, médio, grande]
+        \column{0.5\textwidth}
+        \centering
+        % \includegraphics[width=\linewidth]{caminho/regime_outros.png}
+        [classes, proporção categórica, valores ausentes]
+    \end{columns}
+    \vspace{0.4em}
+    \footnotesize Número de datasets por célula: [...]; leitura apenas descritiva.
+\end{frame}
+
+% Slide 21: custo vs. desempenho
+% Apresenta: integrante 2
+\begin{frame}{Etapa 2: custo vs.\ desempenho}
+    \centering
+    % \includegraphics[width=0.85\textwidth]{caminho/custo_vs_desempenho.png}
+    [tempo total mediano por fold (escala log) vs.\ AUC OvO média, cinco sistemas]
+    \\[0.4em]
+    \footnotesize Posição do modelo do grupo na fronteira de Pareto: [...].
+\end{frame}
+
+% Slide 22: pontos fortes, pontos fracos e ameaças à validade
+% Apresenta: integrante 1
+\begin{frame}{Etapa 2: pontos fortes, pontos fracos e ameaças à validade}
+    \begin{itemize}
+        \item Melhor desempenho em: [regime] (exemplo: [dataset], diferença = +0,0xx).
+        \item Pior desempenho em: [regime] (exemplo: [dataset], diferença = $-$0,0xx).
+        \item Causa provável: [propriedade dos dados ou limite do modelo].
+        \item Ameaças à validade: [assimetria de busca, imputação, subamostragem, falhas, N por regime, estudos em um único fold externo, origem das faixas do espaço de busca].
+    \end{itemize}
+\end{frame}
+
+% Slide 23: conclusões
+% Apresenta: todos
+\begin{frame}{Conclusões}
+    \begin{itemize}
+        \item Posição do modelo: [resumo em uma frase, com o resultado estatístico].
+        \item Pontos fortes: [...]
+        \item Limites: [restrições de n, p, regime, custo, licença de pesos].
+        \item Próximos passos: [métricas adicionais, calibração, análise bayesiana opcional].
+    \end{itemize}
+\end{frame}
+
+% Slide 24: encerramento
+% Apresenta: todos
+\begin{frame}{Obrigado}
+    \centering
+    \textbf{Perguntas?}
+    \\[1em]
+    \footnotesize
+    Repositório: \texttt{[link]} (criado a partir do template \texttt{projeto-final-IN1102-2026.2})\\
+    Contato: [e-mails dos integrantes]\\
+    Referências principais: [3 a 5 itens]
+\end{frame}
+
+\end{document}

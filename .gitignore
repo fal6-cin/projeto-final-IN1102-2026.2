@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Resultados experimentais
+results/*
+!results/validation.csv
+!results/validation_train.csv
+!results/protocolo.lock
+!results/test.csv
+!results/test_log.csv
+!results/test_manifest.json
+!results/preds/
+!results/figures/
+!results/tabela_datasets.md
+cache/
+*.csv.gz
+*.parquet
+rtdl_checkpoints/
+
+# Pesos de foundation models
+*.ckpt
+*.pt
+*.pth
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# LaTeX (auxiliares de compilação)
+*.aux
+*.log
+*.out
+*.toc
+*.nav
+*.snm
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+requirements-ci.txt
