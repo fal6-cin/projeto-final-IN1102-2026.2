@@ -158,4 +158,28 @@ def select_complexity(
         ValueError: se `rule` não for "best" nem "1se", ou se algum valor tiver
             menos de 2 folds (n_folds < 2).
     """
-    raise NotImplementedError("TODO(grupo): valide a regra e o número de folds; média e EP por valor; aplique a regra")
+    if rule not in {"best", "1se"}:
+        raise ValueError("A regra deve ser 'best' ou '1se'.")
+    if curve.empty:
+        raise ValueError("A curva deve conter pelo menos um valor com 2 folds.")
+
+    grouped = curve.groupby("value", sort=False)
+    n_folds = grouped["fold"].nunique()
+    if (n_folds < 2).any():
+        raise ValueError("Cada valor precisa de pelo menos 2 folds.")
+    summary = grouped[f"{metric}_val"].agg(["mean", "std"])
+    summary["se"] = summary["std"] / np.sqrt(n_folds)
+
+    best_mean = summary["mean"].max() if higher_is_better else summary["mean"].min()
+    tied = summary.index[summary["mean"] == best_mean]
+    best = min(tied) if simpler_is_lower else max(tied)
+    if rule == "best":
+        chosen = best
+    else:
+        best_se = summary.loc[best, "se"]
+        if higher_is_better:
+            eligible = summary.index[summary["mean"] >= best_mean - best_se - 1e-12]
+        else:
+            eligible = summary.index[summary["mean"] <= best_mean + best_se + 1e-12]
+        chosen = min(eligible) if simpler_is_lower else max(eligible)
+    return chosen.item() if isinstance(chosen, np.generic) else chosen
