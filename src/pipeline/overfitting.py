@@ -93,7 +93,38 @@ def validation_curve(
     Raises:
         ValueError: se `folds` tiver menos de 2 partições.
     """
-    raise NotImplementedError("TODO(grupo): exija pelo menos 2 folds; ajuste em cada fold interno e meça treino e validação")
+    folds = list(folds)
+    if len(folds) < 2:
+        raise ValueError("São necessários pelo menos 2 folds internos.")
+
+    y = np.asarray(y)
+    columns = ["param", "value", "fold", "n_train", "n_val"]
+    columns += [f"{metric}_{split}" for metric in METRICS for split in ("train", "val")]
+    rows = []
+    for value in values:
+        for fold, (train_idx, val_idx) in enumerate(folds):
+            X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
+            y_train, y_val = y[train_idx], y[val_idx]
+            estimator = factory(seed, **{param: value})
+            estimator.fit(X_train, y_train)
+            train_metrics = compute_metrics(
+                y_train, estimator.predict_proba(X_train), estimator.classes_
+            )
+            val_metrics = compute_metrics(
+                y_val, estimator.predict_proba(X_val), estimator.classes_
+            )
+            row = {
+                "param": param,
+                "value": value,
+                "fold": fold,
+                "n_train": len(train_idx),
+                "n_val": len(val_idx),
+            }
+            for metric in METRICS:
+                row[f"{metric}_train"] = train_metrics[metric]
+                row[f"{metric}_val"] = val_metrics[metric]
+            rows.append(row)
+    return pd.DataFrame(rows, columns=columns)
 
 
 def select_complexity(
