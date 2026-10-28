@@ -46,7 +46,46 @@ def bootstrap_ci(
     Returns:
         dict com chaves estimate, ci_low, ci_high e n_boot.
     """
-    raise NotImplementedError("TODO(grupo): implemente o bootstrap percentil usando compute_metrics; use np.random.default_rng(seed)")
+    y_true = np.asarray(y_true)
+    y_proba = np.asarray(y_proba)
+    classes = np.asarray(classes)
+    n = len(y_true)
+
+    orig_metrics = compute_metrics(y_true, y_proba, classes)
+    estimate = float(orig_metrics[metric])
+
+    rng = np.random.default_rng(seed)
+    boot_values: list[float] = []
+
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, size=n)
+        y_sample = y_true[idx]
+        if len(np.unique(y_sample)) < 2:
+            continue
+        m = compute_metrics(y_sample, y_proba[idx], classes)[metric]
+        if np.isnan(m):
+            continue
+        boot_values.append(float(m))
+
+    if not boot_values:
+        return {
+            "estimate": estimate,
+            "ci_low": float("nan"),
+            "ci_high": float("nan"),
+            "n_boot": 0,
+        }
+
+    q_low = 100.0 * (alpha / 2.0)
+    q_high = 100.0 * (1.0 - alpha / 2.0)
+    ci_low = float(np.percentile(boot_values, q_low))
+    ci_high = float(np.percentile(boot_values, q_high))
+
+    return {
+        "estimate": estimate,
+        "ci_low": ci_low,
+        "ci_high": ci_high,
+        "n_boot": len(boot_values),
+    }
 
 
 def bootstrap_table(
