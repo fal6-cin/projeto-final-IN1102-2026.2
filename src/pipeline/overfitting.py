@@ -57,7 +57,35 @@ def generalization_gap(
         gap_mean, gap_std`, uma linha por sistema, ordenado por gap_mean
         decrescente, com índice 0..n-1.
     """
-    raise NotImplementedError("TODO(grupo): pareie linhas ok pelas chaves comuns e agregue o gap")
+    keys = [key for key in PAIR_KEYS if key in raw.columns and key in raw_train.columns]
+
+    def successful_metrics(frame: pd.DataFrame, name: str) -> pd.DataFrame:
+        successful = frame.loc[frame["status"] == "ok"] if "status" in frame else frame
+        return (
+            successful.drop_duplicates(subset=keys, keep="last")[keys + [metric]]
+            .rename(columns={metric: name})
+        )
+
+    validation = successful_metrics(raw, "val")
+    training = successful_metrics(raw_train, "train")
+    pairs = validation.merge(training, on=keys, how="inner", validate="one_to_one")
+    if pairs.empty:
+        return pd.DataFrame(columns=GAP_COLUMNS)
+    pairs["gap"] = pairs["train"] - pairs["val"]
+    if not higher_is_better:
+        pairs["gap"] = -pairs["gap"]
+    summary = pairs.groupby("model", sort=False).agg(
+        n_folds=("gap", "size"),
+        train_mean=("train", "mean"),
+        val_mean=("val", "mean"),
+        gap_mean=("gap", "mean"),
+        gap_std=("gap", "std"),
+    )
+    return (
+        summary.reset_index()[GAP_COLUMNS]
+        .sort_values("gap_mean", ascending=False, kind="stable")
+        .reset_index(drop=True)
+    )
 
 
 def validation_curve(
