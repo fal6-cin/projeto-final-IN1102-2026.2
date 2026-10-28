@@ -21,7 +21,7 @@ As faixas não usam os resultados por dataset do leaderboard do TabArena nem os 
 ## 3. Seleção dos datasets
 
 - **Arquivo:** `data/selecao_datasets.txt`, aprovado por `uv run python -m src.pipeline.check_selection`.
-- **Critérios:** <resumo dos critérios usados, baseados apenas no catálogo; a justificativa completa vai no relatório>
+- **Critérios:** Seleção foi baseada exclusivamente nos metadados do catálogo, buscando diversidade de tamanho, número de classes, tipos de atributos, presença de valores ausentes e desbalanceamento, em equilíbrio com a viabilidade computacional. Foram incluídos todos os datasets médios, preservados problemas binários e multiclasse em cada regime e incluído um dataset acima de 100 mil instâncias. Não foram consultados resultados de desempenho dos modelos.
 
 ## 4. Subconjunto de datasets dos estudos
 

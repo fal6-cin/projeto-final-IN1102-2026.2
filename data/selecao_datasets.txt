@@ -11,3 +11,39 @@
 #
 # Texto após '#' é ignorado. Exemplo de linha:
 # 363621  # blood-transfusion-service-center (pequeno, binário)
+
+# Pequenos
+363621 #blood-transfusion-service-center
+363629 #diabetes
+363626 #credit-g
+363685 #maternal_health_risk
+363696 #qsar-biodeg
+363707 #website_phishing
+363671 #Fitness_Club
+363682 #Is-this-a-good-customer
+363684 #Marketing_Campaign
+363674 #hazelnut-spread-contaminant-detection
+
+# Médios
+363700 #seismic-bumps
+363702 #splice
+363620 #Bioresponse
+363677 #hiva_agnostic
+363704 #students_dropout_and_academic_success
+363623 #churn
+363694 #polish_companies_bankruptcy
+363706 #taiwanese_bankruptcy_prediction
+363689 #NATICUSdroid
+363624 #coil2000_insurance_policies
+
+# Grandes
+363628 #customer_satisfaction_in_airline
+363676 #heloc
+363712 #jm1
+363632 #E-CommereShippingData
+363691 #online_shoppers_intention
+363681 #in_vehicle_coupon_recommendation
+363679 #HR_Analytics_Job_Change_of_Data_Scientists
+363627 #credit_card_clients_default
+363618 #bank-marketing
+363699 #SDSS17
