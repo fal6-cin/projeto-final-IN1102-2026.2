@@ -20,7 +20,7 @@ jobs:
         # para que o teste de contrato do modelo tema seja executado na CI.
         run: |
           uv venv --python 3.12
-          uv export --frozen --no-hashes --no-emit-project --extra baselines --group dev \
+          uv export --frozen --no-hashes --no-emit-project --extra baselines --extra tabicl --group dev \
             | grep -v -E '^(nvidia-|triton|cuda-)' > requirements-ci.txt
           uv pip install --torch-backend cpu -r requirements-ci.txt
           uv pip install --no-deps -e .

@@ -40,12 +40,34 @@ from typing import Any
 
 import optuna
 
+_NORM_METHODS_MAP: dict[str, list[str]] = {
+    "none+power": ["none", "power"],
+    "none+power+robust": ["none", "power", "robust"],
+    "none+power+quantile_rtdl": ["none", "power", "quantile_rtdl"],
+    "power": ["power"],
+    "quantile_rtdl": ["quantile_rtdl"],
+}
 
 def build_group_model(seed: int = 42, **params: Any):
     """Constrói o modelo tema do grupo com a semente e os hiperparâmetros indicados."""
-    raise NotImplementedError("TODO(grupo): implemente o modelo tema em src/models/group_model.py")
+    from tabicl import TabICLClassifier
+
+    model_params = {"random_state": seed, **params}
+    norm = model_params.get("norm_methods")
+    if isinstance(norm, str) and norm in _NORM_METHODS_MAP:
+        model_params["norm_methods"] = _NORM_METHODS_MAP[norm]
+    return TabICLClassifier(**model_params)
 
 
 def search_space(trial: optuna.Trial) -> dict[str, Any]:
     """Espaço de busca do modelo tema (hiperparâmetros aceitos por build_group_model)."""
-    raise NotImplementedError("TODO(grupo): defina o espaço de busca em src/models/group_model.py")
+    norm_key = trial.suggest_categorical(
+        "norm_methods",
+        ["none+power", "none+power+robust", "none+power+quantile_rtdl", "power", "quantile_rtdl"],
+    )
+    return {
+        "norm_methods": _NORM_METHODS_MAP[norm_key],
+        "outlier_threshold": trial.suggest_float("outlier_threshold", 2.5, 6.0),
+        "softmax_temperature": trial.suggest_float("softmax_temperature", 0.5, 1.5, log=True),
+        "average_logits": trial.suggest_categorical("average_logits", [True, False]),
+    }
