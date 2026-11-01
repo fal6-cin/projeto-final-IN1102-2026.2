@@ -40,6 +40,8 @@ from typing import Any
 
 import optuna
 
+from data.load_tabarena import REPO_ROOT
+
 _NORM_METHODS_MAP: dict[str, list[str]] = {
     "none+power": ["none", "power"],
     "none+power+robust": ["none", "power", "robust"],
@@ -48,11 +50,24 @@ _NORM_METHODS_MAP: dict[str, list[str]] = {
     "quantile_rtdl": ["quantile_rtdl"],
 }
 
+
 def build_group_model(seed: int = 42, **params: Any):
     """Constrói o modelo tema do grupo com a semente e os hiperparâmetros indicados."""
     from tabicl import TabICLClassifier
 
-    model_params = {"random_state": seed, **params}
+    offload_dir = str(REPO_ROOT / "cache" / "tabicl_offload")
+    model_params = {
+        "random_state": seed,
+        "batch_size": 1,
+        "disk_offload_dir": offload_dir,
+        "inference_config": {
+            "COL_CONFIG": {
+                "max_pinned_memory_mb": 0.0,
+                "use_async": False,
+            }
+        },
+        **params,
+    }
     norm = model_params.get("norm_methods")
     if isinstance(norm, str) and norm in _NORM_METHODS_MAP:
         model_params["norm_methods"] = _NORM_METHODS_MAP[norm]
