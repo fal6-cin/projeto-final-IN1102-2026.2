@@ -20,6 +20,7 @@ from __future__ import annotations
 import pandas as pd
 
 from data.load_tabarena import catalog
+from src.pipeline.demsar import rank_matrix
 
 CAT_SHARE_THRESHOLD = 0.25
 REGIME_COLUMNS = ["regime_size", "problem", "regime_cat_share", "regime_missing"]
@@ -54,7 +55,21 @@ def aggregate_by_regime(
         metadata: saída de `regime_metadata`.
         regime_col: uma das colunas de REGIME_COLUMNS.
     """
-    raise NotImplementedError("TODO(grupo): junte a tabela (formato longo) aos metadados e agregue média, desvio e contagem")
+    long_df = (
+        table.rename_axis("task_id")
+        .reset_index()
+        .melt(id_vars="task_id", var_name="model", value_name="value")
+    )
+    merged = long_df.merge(metadata[["task_id", regime_col]], on="task_id", how="inner")
+    agg = (
+        merged.groupby([regime_col, "model"], as_index=False)["value"]
+        .agg(
+            mean="mean",
+            std=lambda s: s.std(ddof=1),
+            n_datasets="count",
+        )
+    )
+    return agg[[regime_col, "model", "mean", "std", "n_datasets"]]
 
 
 def rank_by_regime(
@@ -66,4 +81,6 @@ def rank_by_regime(
     `aggregate_by_regime`. Colunas de saída: <regime_col>, model, mean_rank,
     std_rank e n_datasets.
     """
-    raise NotImplementedError("TODO(grupo): ranqueie cada dataset (1 = melhor) e agregue os postos por regime")
+    ranks = rank_matrix(table, higher_is_better=higher_is_better)
+    agg = aggregate_by_regime(ranks, metadata, regime_col)
+    return agg.rename(columns={"mean": "mean_rank", "std": "std_rank"})
