@@ -27,12 +27,34 @@ def summary_by_model(raw: pd.DataFrame, metrics: list[str] = DEFAULT_METRICS) ->
     calculam média e desvio entre datasets. Colunas de saída: model e
     `<métrica>_mean`, `<métrica>_std` para cada métrica.
     """
-    raise NotImplementedError("TODO(grupo): agregue primeiro por (model, task_id) e depois por model")
+    df = ok_results(raw)
+    by_dataset = df.groupby(["model", "task_id"], as_index=False)[metrics].mean()
+    grouped = by_dataset.groupby("model", sort=False)
+
+    rows = []
+    for model, group in grouped:
+        row: dict[str, object] = {"model": model}
+        for m in metrics:
+            row[f"{m}_mean"] = float(group[m].mean())
+            row[f"{m}_std"] = float(group[m].std(ddof=1))
+        rows.append(row)
+    return pd.DataFrame(rows)
 
 
 def per_dataset_table(raw: pd.DataFrame, metric: str = "auc_ovo") -> pd.DataFrame:
     """Tabela `dataset x sistema` com texto 'média ± desvio' da métrica entre os folds."""
-    raise NotImplementedError("TODO(grupo): agrupe por (dataset, model), calcule média e desvio e formate o texto")
+    df = ok_results(raw)
+    agg = (
+        df.groupby(["dataset", "model"], sort=False)[metric]
+        .agg(mean="mean", std=lambda s: s.std(ddof=1))
+        .reset_index()
+    )
+    agg["formatted"] = agg.apply(
+        lambda r: f"{r['mean']:.4f} ± {0.0 if pd.isna(r['std']) else r['std']:.4f}",
+        axis=1,
+    )
+    table = agg.pivot(index="dataset", columns="model", values="formatted")
+    return table
 
 
 def export_markdown(df: pd.DataFrame, output_path: Path, floatfmt: str = ".4f") -> None:
