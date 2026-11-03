@@ -37,6 +37,10 @@ DEFAULT_TIMEOUT_S = 600
 DEFAULT_MAX_SAMPLES = 10_000
 
 
+class NonFiniteProbabilityError(ValueError):
+    """O estimador gerou probabilidades NaN ou infinitas."""
+
+
 @dataclass
 class TuningResult:
     best_params: dict[str, Any]
@@ -47,6 +51,10 @@ class TuningResult:
 
 def _auc(estimator: Any, X: pd.DataFrame, y: np.ndarray) -> float:
     proba = np.asarray(estimator.predict_proba(X))
+    if not np.isfinite(proba).all():
+        raise NonFiniteProbabilityError(
+            "predict_proba retornou probabilidades NaN ou infinitas"
+        )
     classes = np.asarray(estimator.classes_)
     if classes.size == 2:
         return float(roc_auc_score(y == classes[1], proba[:, 1]))
@@ -94,8 +102,18 @@ def tune(
     sampler = optuna.samplers.TPESampler(seed=seed)
     study = optuna.create_study(direction="maximize", sampler=sampler)
     t0 = time.perf_counter()
-    study.optimize(objective, n_trials=n_trials, timeout=timeout_s, show_progress_bar=False)
+    study.optimize(
+        objective,
+        n_trials=n_trials,
+        timeout=timeout_s,
+        show_progress_bar=False,
+        catch=(NonFiniteProbabilityError,),
+    )
     tune_time_s = time.perf_counter() - t0
+    if not any(t.state == optuna.trial.TrialState.COMPLETE for t in study.trials):
+        raise RuntimeError(
+            "A busca terminou sem nenhuma tentativa válida (NaN/infinito)."
+        )
     # Reconstrói o dicionário (possivelmente aninhado) a partir da melhor tentativa.
     best_params = search_space(optuna.trial.FixedTrial(study.best_params))
     return TuningResult(

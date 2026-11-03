@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import shutil
 import tempfile
+from inspect import signature
 from typing import Any
 
 import numpy as np
@@ -42,12 +43,12 @@ class _LabelEncodingMixin:
 
 
 class ImputedClassifier(ClassifierMixin, BaseEstimator):
-    """Imputa valores ausentes numéricos antes de delegar ao estimador interno.
+    """Imputa numéricos e codifica categóricas no treino, sem vazamento.
 
-    Necessário para modelos que não aceitam NaN em colunas numéricas (TabM,
-    RealMLP, FT-Transformer e xRFM do pytabkit). Cada coluna numérica com
-    ausência no treino recebe a mediana do treino e um indicador binário de
-    ausência; colunas categóricas e o tipo `DataFrame` são preservados.
+    As medianas e os mapas de categorias são aprendidos no fit e reutilizados
+    na predição. Categorias desconhecidas e valores ausentes recebem código -1.
+    Para estimadores que aceitam cat_col_names em fit (pytabkit), as colunas
+    codificadas são identificadas como categóricas, não como variáveis contínuas.
     """
 
     def __init__(self, estimator: Any):
@@ -55,6 +56,13 @@ class ImputedClassifier(ClassifierMixin, BaseEstimator):
 
     def _transform(self, X: pd.DataFrame) -> pd.DataFrame:
         X = X.copy()
+        for col, mapping in self._category_maps.items():
+            X[col] = (
+                X[col].astype("string")
+                .map(mapping)
+                .fillna(-1)
+                .astype("int32")
+            )
         for col, median in self._medians.items():
             missing = X[col].isna()
             X[f"{col}__ausente"] = missing.astype(np.float32)
@@ -66,11 +74,19 @@ class ImputedClassifier(ClassifierMixin, BaseEstimator):
         return X
 
     def fit(self, X: pd.DataFrame, y) -> ImputedClassifier:
-        numerical, _ = _split_columns(X)
+        numerical, categorical = _split_columns(X)
+        self._category_maps = {
+            col: {value: i for i, value in enumerate(X[col].astype("string").dropna().unique())}
+            for col in categorical
+        }
         # Coluna inteiramente ausente no treino recebe 0 (mediana indefinida).
         self._all_medians = {c: float(np.nan_to_num(X[c].median())) for c in numerical}
         self._medians = {c: m for c, m in self._all_medians.items() if X[c].isna().any()}
-        self.estimator_ = clone(self.estimator).fit(self._transform(X), y)
+        self.estimator_ = clone(self.estimator)
+        fit_kwargs = {}
+        if categorical and "cat_col_names" in signature(self.estimator_.fit).parameters:
+            fit_kwargs["cat_col_names"] = categorical
+        self.estimator_.fit(self._transform(X), y, **fit_kwargs)
         self.classes_ = np.asarray(self.estimator_.classes_)
         return self
 

@@ -55,11 +55,10 @@ def build_group_model(seed: int = 42, **params: Any):
     """Constrói o modelo tema do grupo com a semente e os hiperparâmetros indicados."""
     from tabicl import TabICLClassifier
 
-    offload_dir = str(REPO_ROOT / "cache" / "tabicl_offload")
     model_params = {
         "random_state": seed,
         "batch_size": 1,
-        "disk_offload_dir": offload_dir,
+        "disk_offload_dir": str(REPO_ROOT / "cache" / "tabicl_offload"),
         "inference_config": {
             "COL_CONFIG": {
                 "max_pinned_memory_mb": 0.0,
