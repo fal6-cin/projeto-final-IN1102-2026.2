@@ -42,6 +42,13 @@ import optuna
 
 from data.load_tabarena import REPO_ROOT
 
+try:
+    from tabicl import TabICLClassifier as _BaseTabICLClassifier
+except ImportError:  # pragma: no cover
+    _BaseTabICLClassifier = object  # type: ignore[misc,assignment]
+
+HIGH_DIM_THRESHOLD = 500
+
 _NORM_METHODS_MAP: dict[str, list[str]] = {
     "none+power": ["none", "power"],
     "none+power+robust": ["none", "power", "robust"],
@@ -51,26 +58,38 @@ _NORM_METHODS_MAP: dict[str, list[str]] = {
 }
 
 
+class AdaptiveTabICLClassifier(_BaseTabICLClassifier):
+    """Adapta o gerenciamento de memória em bases de alta dimensionalidade."""
+
+    def _build_inference_config(self) -> None:
+        super()._build_inference_config()
+        if getattr(self, "n_features_in_", 0) > HIGH_DIM_THRESHOLD:
+            self.inference_config_.COL_CONFIG.update(
+                {
+                    "max_pinned_memory_mb": 0.0,
+                    "use_async": False,
+                    "disk_offload_dir": str(REPO_ROOT / "cache" / "tabicl_offload"),
+                }
+            )
+
+    def _batch_forward(self, Xs, ys, feature_shuffles=None):
+        if getattr(self, "n_features_in_", 0) > HIGH_DIM_THRESHOLD:
+            old_bs = self.batch_size
+            self.batch_size = 1
+            try:
+                return super()._batch_forward(Xs, ys, feature_shuffles)
+            finally:
+                self.batch_size = old_bs
+        return super()._batch_forward(Xs, ys, feature_shuffles)
+
+
 def build_group_model(seed: int = 42, **params: Any):
     """Constrói o modelo tema do grupo com a semente e os hiperparâmetros indicados."""
-    from tabicl import TabICLClassifier
-
-    model_params = {
-        "random_state": seed,
-        "batch_size": 1,
-        "disk_offload_dir": str(REPO_ROOT / "cache" / "tabicl_offload"),
-        "inference_config": {
-            "COL_CONFIG": {
-                "max_pinned_memory_mb": 0.0,
-                "use_async": False,
-            }
-        },
-        **params,
-    }
+    model_params = {"random_state": seed, **params}
     norm = model_params.get("norm_methods")
     if isinstance(norm, str) and norm in _NORM_METHODS_MAP:
         model_params["norm_methods"] = _NORM_METHODS_MAP[norm]
-    return TabICLClassifier(**model_params)
+    return AdaptiveTabICLClassifier(**model_params)
 
 
 def search_space(trial: optuna.Trial) -> dict[str, Any]:
