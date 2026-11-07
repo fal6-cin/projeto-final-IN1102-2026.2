@@ -8,7 +8,7 @@
 
 **Ambiente de execução:** Google Colab, Python 3, GPU NVIDIA T4.
 
-**Commit das correções:** [`2cec625de52d37337f0cafaf80c71d7cd9802cdb`](https://github.com/leticialevleitao/projetoAM20262Q2/commit/2cec625de52d37337f0cafaf80c71d7cd9802cdb) e [`58c242557b87beab2af72d47dbd068515776c2d8`](https://github.com/leticialevleitao/projetoAM20262Q2/commit/58c242557b87beab2af72d47dbd068515776c2d8).
+**Commits das correções:** [`58c2425`](https://github.com/leticialevleitao/projetoAM20262Q2/commit/58c242557b87beab2af72d47dbd068515776c2d8), [`2cec625`](https://github.com/leticialevleitao/projetoAM20262Q2/commit/2cec625de52d37337f0cafaf80c71d7cd9802cdb) e [`d8a4d73`](https://github.com/leticialevleitao/projetoAM20262Q2/commit/d8a4d73ea85001c690e417df88a36d36c96aaba0)
 
 **Commit dos CSVs consolidados:** [`87d84d1b28945a04be2317ae52514832961f6302`](https://github.com/leticialevleitao/projetoAM20262Q2/commit/87d84d1b28945a04be2317ae52514832961f6302).
 
@@ -24,7 +24,7 @@ Em conformidade com `docs/declaracoes_a_priori.md`, não foram propostas altera�
 
 | ID | Local / datasets afetados | Sintoma observado | Intervenção | Resultado verificado |
 |---|---|---|---|---|
-| F-01 | `363620` Bioresponse e `363677` hiva_agnostic | Falta de memória no TabICL; encerramento 137 em uma execução do hiva | Configuração de memória em `src/models/group_model.py` e retomada seletiva | Recuperadas 18 avaliações do Bioresponse e 36 do hiva |
+| F-01 | `363620` Bioresponse e `363677` hiva_agnostic | Falta de memória no TabICL; encerramento 137 em uma execução do hiva | Configuração de memória na recuperação e posterior implementação adaptativa em `src/models/group_model.py` | Recuperadas 18 avaliações do Bioresponse e 36 do hiva |
 | F-02 | `363706` Taiwanese Bankruptcy, `group_tuned` | `ValueError: Input contains NaN` durante cálculo de AUC de uma tentativa Optuna | Tratamento específico de probabilidades não finitas em `src/pipeline/tune.py` | Recuperadas as 9 avaliações pendentes |
 | F-03 | `363691` Online Shoppers, três baselines | `ValueError: Cannot cast object dtype to float64` envolvendo categoria como `Aug` | Codificação categórica aprendida no treino em `src/models/wrappers.py` | Recuperadas as 27 avaliações pendentes |
 | F-04 | Sessões de computação e consolidação | Limites de uso de GPU, reinícios e resultados em pastas/contas distintas | Persistência em Drive, execuções por blocos e consolidação por chave | 1.350/1.350 avaliações válidas, sem duplicatas ou pendências nos CSVs finais |
@@ -35,7 +35,7 @@ Em conformidade com `docs/declaracoes_a_priori.md`, não foram propostas altera�
 
 **Sintoma.** No Bioresponse (`363620`), os baselines haviam produzido **27/45** avaliações válidas, mas `group_default` e `group_tuned` falharam por OOM, deixando **18** avaliações pendentes. No hiva_agnostic (`363677`), havia **9/45** avaliações válidas; uma execução foi interrompida com código **137**, sugestivo de encerramento por falta de memória do processo/ambiente, mas sem comprovação de qual recurso específico esgotou. Permaneceram **36** avaliações pendentes, entre TabICL e baselines.
 
-**Correção implementada.** Em `src/models/group_model.py`, o `TabICLClassifier` passou a ser construído com a seguinte configuração operacional:
+**Correção utilizada na recuperação original.** Em `src/models/group_model.py`, o `TabICLClassifier` passou inicialmente a ser construído com a seguinte configuração operacional, aplicada globalmente pelo construtor naquela versão:
 
 ```python
 model_params = {
@@ -54,9 +54,11 @@ model_params = {
 
 Foi acrescentado `from data.load_tabarena import REPO_ROOT`. O mapeamento de `norm_methods` e o `search_space()` foram preservados.
 
+O arquivo passou a utilizar a classe `AdaptiveTabICLClassifier`, com `HIGH_DIM_THRESHOLD = 500`. Quando `n_features_in_ > 500`, a classe ajusta `max_pinned_memory_mb = 0.0`, `use_async = False` e `disk_offload_dir` na configuração de inferência, além de usar temporariamente `batch_size = 1` em `_batch_forward`. Nos demais casos, preserva o comportamento padrão herdado do TabICL para esses ajustes operacionais.
+
 **Verificação.** O primeiro teste no Bioresponse, `group_default`, fold externo 0, concluiu as três avaliações internas (`AUC interna = 0,8393` no log). Depois, os demais folds e o `group_tuned` do Bioresponse terminaram com cobertura **18/18** das avaliações anteriormente ausentes. No hiva, a retomada do TabICL e dos baselines concluiu **36/36** avaliações pendentes.
 
-**Impacto metodológico.** A configuração reduz pressão de memória, mas pode aumentar `predict_time_s` e o tempo total de ajuste/busca; `disk_offload_dir` não comprova, sozinho, que houve acesso efetivo ao disco. Como o Optuna possui limite de tempo, mudanças na duração das tentativas podem alterar quantas são concluídas e quais parâmetros são selecionados. **Embora a alteração no construtor seja global** para futuras execuções de `group_default` e `group_tuned`, **na recuperação ela foi utilizada apenas nas avaliações pendentes desses modelos nos datasets afetados**. As avaliações anteriormente concluídas não foram reexecutadas.
+**Impacto metodológico.** A configuração utilizada na recuperação reduz a pressão de memória, mas pode aumentar `predict_time_s` e o tempo de ajuste/busca; a presença de `disk_offload_dir` não comprova, por si só, acesso efetivo ao disco. Como o Optuna tem limite de tempo, mudanças na duração das tentativas podem modificar quantas são concluídas e quais parâmetros são selecionados. A versão atual restringe os ajustes operacionais a bases com mais de 500 atributos. As avaliações já concluídas foram preservadas.
 
 ### F-02 — Probabilidades não finitas durante a busca Optuna
 
@@ -111,8 +113,8 @@ Conferências executadas nos arquivos consolidados: unicidade da chave `(task_id
 | Dimensão | Consideração para o relatório |
 |---|---|
 | Desempenho preditivo | Os reparos não foram motivados por AUC/accuracy; ainda assim, a codificação categórica e o comportamento das tentativas Optuna podem afetar as métricas. |
-| Tempo e orçamento | `batch_size=1`, descarregamento e opções de transferência podem alterar tempos. O limite de 600 s é verificado entre tentativas; `tune_time_s` efetivo pode ultrapassá-lo. |
-| Heterogeneidade | Os CSVs agregam resultados obtidos em diferentes sessões do Google Colab com GPU T4. As mudanças no código têm alcance global, mas durante a recuperação foram reexecutadas somente as avaliações falhas ou ausentes. Portanto, os resultados combinam registros de antes e depois das correções; o mesmo modelo de GPU também não garante tempos idênticos entre sessões. |
+| Tempo e orçamento | Para datasets com mais de 500 atributos, `batch_size=1`, descarregamento e opções de transferência podem alterar os tempos. O limite de 600 s é verificado entre tentativas; `tune_time_s` efetivo pode ultrapassá-lo. |
+| Heterogeneidade | Os CSVs agregam resultados obtidos em diferentes sessões do Google Colab com GPU T4. As correções de pré-processamento e tratamento de falhas podem afetar as métricas e os tempos de execução; o mesmo modelo de GPU também não garante tempos idênticos entre sessões. |
 | Vazamento de dados | Os mapeamentos categóricos foram aprendidos dentro do `fit()` em cada partição de treino, sem utilizar as categorias da respectiva partição de validação. O protocolo mantém o teste externo separado da busca e da validação interna. |
 | Reprodutibilidade | Os commits das correções e dos CSVs estão referenciados neste documento; `uv.lock`, diffs, logs, checkpoints e artefatos de predição complementam a rastreabilidade do experimento. |
 
