@@ -1,0 +1,7 @@
+model_a,model_b,rank_diff,cd,significant
+group_tuned,lightgbm,0.7,0.856343924182161,False
+group_tuned,xgboost,1.8666666666666665,0.856343924182161,True
+group_tuned,catboost,1.7,0.856343924182161,True
+lightgbm,xgboost,1.1666666666666665,0.856343924182161,True
+lightgbm,catboost,1.0,0.856343924182161,True
+xgboost,catboost,0.16666666666666652,0.856343924182161,False

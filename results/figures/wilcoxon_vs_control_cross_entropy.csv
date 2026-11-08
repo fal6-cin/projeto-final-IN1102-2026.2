@@ -1,0 +1,4 @@
+control,model,n,r_plus,r_minus,T,p_value,wins,ties,losses,p_holm,significant
+group_tuned,lightgbm,30,390.0,75.0,75.0,0.0007296018302440643,22,0,8,0.0007296018302440643,True
+group_tuned,xgboost,30,441.0,24.0,24.0,1.4193356037139893e-06,27,0,3,2.8386712074279785e-06,True
+group_tuned,catboost,30,448.0,17.0,17.0,3.855675458908081e-07,28,0,2,1.1567026376724243e-06,True
