@@ -18,7 +18,9 @@
 
 \title{\bfseries Relatório Final do Projeto\\[0.3em]
        \large Disciplina de Aprendizagem de Máquina (IN1102, pós-graduação)}
-\author{Grupo: \textbf{Douglas Araujo Silva, Felipe Araújo de Lima, Letícia De Albuquerque S. Leitão}\\
+\author{Grupo:\\[0.15em]
+        \textbf{Douglas Araújo Silva, Felipe Araújo de Lima,}\\
+        \textbf{Letícia De Albuquerque S. Leitão}\\[0.2em]
         Modelo tema: \textbf{TabICL v2}}
 \date{2026.2}
 
@@ -29,7 +31,7 @@
 
 \begin{abstract}
 \noindent
-Este relatório apresenta a fundamentação teórica e a avaliação experimental do \textbf{TabICL v2} (\emph{Tabular In-Context Learning}), um modelo fundacional tabular baseado em Transformers pré-treinado exclusivamente sobre dados sintéticos gerados por processos causais estruturais, confrontado com três baselines clássicos de árvores de decisão impulsionadas por gradiente (LightGBM, XGBoost e CatBoost na configuração \emph{Tuned Defaults} do pacote \texttt{pytabkit}). Na Etapa~1, detalha-se a arquitetura em três estágios do TabICL v2 ($\mathrm{TF}_{\mathrm{col}}$ com \emph{Set Transformer} induzido e \emph{Target-Aware Embedding}, $\mathrm{TF}_{\mathrm{row}}$ com codificação posicional rotacional multidimensional e $\mathrm{TF}_{\mathrm{icl}}$ com atenção escalável \emph{QASSMax}), o pré-treinamento via otimizador Muon sobre o prior sintético de Cauchy/Sobolev e sua complexidade assintótica $\mathcal{O}(n^2 + n m^2)$. Na Etapa~2, executa-se um protocolo estrito de validação cruzada aninhada sobre 30 datasets de classificação da suíte TabArena-v0.1 (10 pequenos, 10 médios e 10 grandes, com 3 folds externos oficiais e 3 folds internos para busca Bayesiana via Optuna TPE de 20 trials). Na avaliação final selada ($N = 30$ datasets completos), o TabICL v2 otimizado (\texttt{group\_tuned}, controle) alcançou posto médio de $1{,}300$ na métrica primária AUC OvO (média de $0{,}8606 \pm 0{,}1166$), superando de forma estatisticamente significativa ($\alpha = 0{,}05$) o LightGBM (posto $2{,}633$, $p_{\text{Holm}} = 6{,}33 \times 10^{-5}$), o CatBoost (posto $2{,}867$, $p_{\text{Holm}} = 5{,}20 \times 10^{-6}$) e o XGBoost (posto $3{,}200$, $p_{\text{Holm}} = 3{,}59 \times 10^{-8}$) segundo o teste global de Iman-Davenport ($F_F = 20{,}695$, $p = 3{,}28 \times 10^{-10}$) e o pós-teste de Holm. Contudo, o teste pareado de Wilcoxon signed-ranks entre \texttt{group\_tuned} e a configuração padrão \texttt{group\_default} (AUC OvO média de $0{,}8607 \pm 0{,}1170$) não apontou ganho estatisticamente significativo da busca ($T = 184{,}0$, $p = 0{,}3285$), enquanto na métrica secundária pré-declarada de entropia cruzada o \texttt{group\_default} superou significativamente o \texttt{group\_tuned} em 29 dos 30 datasets ($T = 1{,}0$, $p = 3{,}73 \times 10^{-9}$) com custo computacional quase dez vezes menor ($22{,}24\text{ s}$ contra $218{,}78\text{ s}$ por fold). Conclui-se que a inferência em contexto do TabICL v2 estabelece um novo patamar preditivo frente aos GBDTs em classificação tabular até $10.000$ amostras de treino, sendo sua configuração padrão suficiente e mais bem calibrada que a variante ajustada por busca.
+Este relatório apresenta a fundamentação teórica e a avaliação experimental do \textbf{TabICL v2} (\emph{Tabular In-Context Learning}), um modelo fundacional tabular baseado em Transformers pré-treinado exclusivamente sobre dados sintéticos gerados por processos causais estruturais, confrontado com três baselines clássicos de árvores de decisão impulsionadas por gradiente (LightGBM, XGBoost e CatBoost na configuração \emph{Tuned Defaults} do pacote \texttt{pytabkit}). Na Etapa~1, detalha-se a arquitetura em três estágios do TabICL v2 ($\mathrm{TF}_{\mathrm{col}}$ com \emph{Set Transformer} induzido e \emph{Target-Aware Embedding}, $\mathrm{TF}_{\mathrm{row}}$ com codificação posicional rotacional multidimensional e $\mathrm{TF}_{\mathrm{icl}}$ com atenção escalável \emph{QASSMax}), o pré-treinamento via otimizador Muon sobre o prior sintético de Cauchy/Sobolev e sua complexidade assintótica $\mathcal{O}(n^2 + n m^2)$. Na Etapa~2, executa-se um protocolo estrito de validação cruzada aninhada sobre 30 datasets de classificação da suíte TabArena-v0.1 (10 pequenos, 10 médios e 10 grandes, com 3 folds externos oficiais e 3 folds internos para busca Bayesiana via Optuna TPE de 20 trials). Na avaliação final selada ($N = 30$ datasets completos), o TabICL v2 otimizado (\texttt{group\_tuned}, controle) alcançou posto médio de $1{,}300$ na métrica primária AUC OvO (média de $0{,}8606 \pm 0{,}1166$), superando de forma estatisticamente significativa ($\alpha = 0{,}05$) o LightGBM (posto $2{,}633$, $p_{\text{Holm}} = 6{,}33 \times 10^{-5}$), o CatBoost (posto $2{,}867$, $p_{\text{Holm}} = 5{,}20 \times 10^{-6}$) e o XGBoost (posto $3{,}200$, $p_{\text{Holm}} = 3{,}59 \times 10^{-8}$) segundo o teste global de Iman-Davenport ($F_F = 20{,}695$, $p = 3{,}28 \times 10^{-10}$) e o pós-teste de Holm. Contudo, o teste pareado de Wilcoxon signed-ranks entre \texttt{group\_tuned} e a configuração padrão \texttt{group\_default} (AUC OvO média de $0{,}8607 \pm 0{,}1170$) não apontou ganho estatisticamente significativo da busca ($T = 184{,}0$, $p = 0{,}3285$), enquanto na métrica secundária pré-declarada de entropia cruzada o \texttt{group\_default} superou significativamente o \texttt{group\_tuned} em 29 dos 30 datasets ($T = 1{,}0$, $p = 3{,}73 \times 10^{-9}$) com custo computacional quase dez vezes menor ($22{,}24\text{ s}$ contra $218{,}78\text{ s}$ por fold). Conclui-se que, nos 30 datasets e sob o teto protocolar de até $10.000$ amostras de treinamento, o TabICL v2 apresentou desempenho competitivo e, em AUC OvO, superior aos baselines avaliados. A configuração padrão mostrou resultado semelhante em AUC, menor entropia cruzada e custo substancialmente inferior ao da variante otimizada; a entropia cruzada, isoladamente, não constitui prova de calibração probabilística.
 \end{abstract}
 
 \tableofcontents
@@ -219,13 +221,14 @@ O posicionamento do TabICL v2 na literatura recente de Aprendizagem de Máquina 
 \subsection{Hiperparâmetros principais e espaço de busca}
 \label{sec:hiperparametros}
 
-Como o TabICL v2 realiza inferência em contexto com pesos neurais congelados, seus hiperparâmetros expostos ao usuário controlam a diversidade das visões do ensemble de entrada, o tratamento estatístico de valores discrepantes e escalas marginais, a agregação entre estimadores e a calibração da distribuição preditiva. A Tabela~\ref{tab:hiperparametros} resume todos os hiperparâmetros relevantes do modelo, seus papéis estruturais, a configuração padrão adotada em \texttt{group\_default} e o espaço de busca Bayesiana declarado a priori para \texttt{group\_tuned}.
+Como o TabICL v2 realiza inferência em contexto com pesos neurais congelados, seus hiperparâmetros expostos ao usuário controlam a diversidade das visões do ensemble de entrada, o tratamento estatístico de valores discrepantes e escalas marginais, a agregação entre estimadores e a forma da distribuição preditiva. A Tabela~\ref{tab:hiperparametros} resume todos os hiperparâmetros relevantes do modelo, seus papéis estruturais, a configuração padrão adotada em \texttt{group\_default} e o espaço de busca Bayesiana declarado a priori para \texttt{group\_tuned}.
 
 \begin{table}[htbp]
     \centering
     \caption{Hiperparâmetros do modelo tema TabICL v2 (\texttt{AdaptiveTabICLClassifier}), configuração padrão adotada (\texttt{group\_default}) e espaço de busca declarado a priori (\texttt{group\_tuned}).}
     \label{tab:hiperparametros}
     \small
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}llllp{4.6cm}@{}}
         \toprule
         \textbf{Hiperparâmetro} & \textbf{Tipo} & \textbf{Padrão} & \textbf{Espaço de busca} & \textbf{Papel no modelo} \\
@@ -241,6 +244,7 @@ Como o TabICL v2 realiza inferência em contexto com pesos neurais congelados, s
         \texttt{random\_state} & inteiro & $42$ & fixo ($42$) & Semente determinística das permutações de atributos e classes \\
         \bottomrule
     \end{tabular}
+    }%
     \vspace{0.3em}
     \begin{flushleft}
     \footnotesize
@@ -255,7 +259,7 @@ As faixas do espaço de busca em \texttt{src/models/group\_model.py} foram justi
 \label{sec:limitacoes}
 
 \paragraph{Cenários em que o TabICL v2 é particularmente indicado.}
-O TabICL v2 destaca-se como escolha de primeira linha em problemas de classificação tabular de pequeno e médio porte ($n \le 10.000$ amostras) e tabelas com número moderado de atributos ($m \le 200$), nos quais sua inferência Bayesiana amortizada extrai relações multivariadas complexas sem risco de sobreajuste por descida de gradiente. Além disso, por não exigir ajuste de hiperparâmetros para alcançar desempenho competitivo e produzir probabilidades bem calibradas na configuração padrão, é altamente vantajoso em fluxos de prototipagem rápida, sistemas médicos, financeiros ou industriais com dados escassos e pipelines automatizados (\emph{zero-shot tabular learning}).
+O TabICL v2 constitui uma alternativa relevante a avaliar em problemas de classificação tabular de pequeno e médio porte ($n \le 10.000$ amostras) e tabelas com número moderado de atributos ($m \le 200$), nos quais sua inferência Bayesiana amortizada extrai relações multivariadas complexas sem atualizar seus pesos pré-treinados por descida de gradiente durante o ajuste da tarefa. Além disso, por não exigir ajuste de hiperparâmetros para alcançar desempenho competitivo e produzir menores valores de entropia cruzada no conjunto de testes deste estudo, pode ser vantajoso em fluxos de prototipagem rápida, sistemas médicos, financeiros ou industriais com dados escassos e pipelines automatizados (\emph{zero-shot tabular learning}).
 
 \paragraph{Limitações teóricas e práticas.}
 Apesar de seus pontos fortes, o modelo apresenta limitações importantes que devem ser consideradas:
@@ -316,9 +320,9 @@ Durante toda a fase de desenvolvimento (\texttt{run\_validation.py} e notebooks 
         Métrica primária & AUC ROC multiclasse OvO macro (\texttt{auc\_ovo}) \\
         Métrica secundária declarada a priori & Entropia cruzada / log-loss (\texttt{cross\_entropy}) \\
         Commit de \texttt{docs/declaracoes\_a\_priori.md} & \texttt{e2c6968} (inicial: \texttt{0a99b2c}) \\
-        Timestamp de \texttt{results/protocolo.lock} & \texttt{2026-11-07T17:17:49+00:00} (commit \texttt{f474ef33}) \\
-        SHA-256 de \texttt{results/protocolo.lock} (repo) & \texttt{3fb961581e2de87b260c1bb4b45ffca7dd91e36c...} \\
-        SHA-256 de \texttt{protocolo.lock} na sessão Colab & \texttt{59901430bd8c648642b9edff4d5ef667bd0c31ff...} \\
+        Timestamp de \texttt{results/protocolo.lock} & \texttt{2026-11-07T16:35:09+00:00} \\
+        SHA-256 de \texttt{results/protocolo.lock} & \texttt{59901430bd8c648642b9edff4d5e...} \\
+        Commit do lock / primeiro commit de teste & \texttt{9718c9649b} / \texttt{983c42aa4f} \\
         Início e fim de \texttt{final\_test} (\texttt{test\_log.csv}) & \texttt{2026-11-07T18:16:14Z} a \texttt{2026-11-08T02:58:08Z} \\
         \bottomrule
     \end{tabular}
@@ -374,6 +378,7 @@ A Tabela~\ref{tab:lacuna} e a Figura~\ref{fig:lacuna} apresentam as médias de t
     \caption{Lacuna treino-validação na validação cruzada interna para a métrica primária AUC OvO ($270$ partições no geral; $90$ partições por regime de tamanho).}
     \label{tab:lacuna}
     \small
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}lrrrrrrr@{}}
         \toprule
         \textbf{Sistema} & \textbf{Treino} & \textbf{Validação} & \textbf{Lacuna geral} & \textbf{Pequeno} & \textbf{Médio} & \textbf{Grande} & \textbf{Otimista?} \\
@@ -385,6 +390,7 @@ A Tabela~\ref{tab:lacuna} e a Figura~\ref{fig:lacuna} apresentam as médias de t
         \texttt{lightgbm} & $0{,}9190$ & $0{,}8304$ & $0{,}0886 \pm 0{,}0708$ & $0{,}0715$ & $0{,}0952$ & $0{,}0991$ & Não \\
         \bottomrule
     \end{tabular}
+    }%
 \end{table}
 
 \begin{figure}[htbp]
@@ -402,6 +408,7 @@ Para confrontar diretamente o controle de capacidade estrutural do modelo tema c
     \caption{Seleção de complexidade pela melhor média (\texttt{best}) e pela regra de 1 erro padrão (\texttt{1se}) nas curvas de validação interna (AUC OvO, treino do fold externo 0).}
     \label{tab:complexidade}
     \small
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}llrrl@{}}
         \toprule
         \textbf{Regime (Dataset)} & \textbf{Sistema (Hiperparâmetro)} & \textbf{Melhor média} & \textbf{Regra de 1 EP} & \textbf{No \texttt{search\_space}?} \\
@@ -415,6 +422,7 @@ Para confrontar diretamente o controle de capacidade estrutural do modelo tema c
         Grande (\texttt{363628}) & LightGBM (\texttt{num\_leaves}) & $16$ & $8$ & Baseline fixo (\texttt{pytabkit}) \\
         \bottomrule
     \end{tabular}
+    }%
 \end{table}
 
 \begin{figure}[htbp]
@@ -465,9 +473,9 @@ A suíte automatizada de testes unitários e de contrato foi verificada integral
 \subsection{Avaliação final}
 \label{sec:val_vs_test}
 
-Após o congelamento do protocolo (\texttt{python -m src.pipeline.freeze}), a avaliação final no conjunto de teste externo selado (\texttt{python -m src.pipeline.final\_test}) foi executada em ambiente Google Colab com GPU NVIDIA Tesla T4 ($15.360\text{ MiB}$ de VRAM, driver CUDA \texttt{580.82.07}, Python \texttt{3.12}). Ao todo, todas as $450$ combinações ($30\text{ datasets} \times 3\text{ folds externos} \times 5\text{ sistemas}$) concluíram com $\texttt{status} = \texttt{ok}$, sem nenhuma exclusão pela regra de completude ($N = 30$ datasets completos).
+Após o congelamento do protocolo (\texttt{python -m src.pipeline.freeze}) e o commit de \texttt{results/protocolo.lock} (\texttt{9718c9649b}), a avaliação final do teste externo selado foi realizada por \texttt{src.pipeline.final\_test}. As primeiras execuções ocorreram no Google Colab com GPU NVIDIA Tesla T4; as duas combinações finais que continuavam com erro de memória foram recuperadas no Kaggle, mediante \texttt{--resume}, usando o mesmo protocolo e o histórico Git transferido. Foram concluídas todas as $450$ combinações ($30\text{ datasets} \times 3\text{ folds externos} \times 5\text{ sistemas}$), com $\texttt{status} = \texttt{ok}$, sem exclusões pela regra de completude ($N = 30$ datasets completos).
 
-O log operacional (\texttt{results/test\_log.csv}, detalhado no Apêndice~\ref{app:protocolo}) registra de forma transparente três retomadas idempotentes via flag \texttt{--resume} causadas exclusivamente por fatores de infraestrutura do ambiente de nuvem: (i) nos minutos iniciais (\texttt{2026-11-07T18:16:14Z}), o ambiente interativo do Colab definiu a variável \texttt{MPLBACKEND=module://matplotlib\_inline.backend\_inline}, o que gerou \texttt{ValueError} na inicialização interna do \texttt{pytabkit} para os três baselines nas primeiras 3 tarefas ($27$ combinações), enquanto o TabICL rodou normalmente; corrigida a variável de ambiente para \texttt{MPLBACKEND=Agg} em \texttt{2026-11-07T18:25:42Z}, a execução retomou com \texttt{--resume} e concluiu $448$ das $450$ combinações; e (ii) nos dois últimos folds externos da maior base (\texttt{363628|1|group\_tuned} e \texttt{363628|2|group\_tuned}, com $86.587$ amostras de teste), o acúmulo de memória CUDA após mais de 7 horas contínuas de sessão provocou \texttt{RuntimeError: CUDA out of memory}, resolvido ao reiniciar o runtime limpo da GPU T4 e executar \texttt{--resume} para as $2$ combinações pendentes (\texttt{2026-11-08T02:38:27Z} a \texttt{02:58:08Z}). Nenhuma linha com $\texttt{status} = \texttt{ok}$ foi sobrescrita.
+O registro \texttt{results/test\_log.csv} documenta \textbf{uma avaliação inicial e quatro retomadas} ($490$ eventos no total). Na primeira execução, o backend interativo do Matplotlib configurado no Colab gerou falhas na inicialização de baselines; a configuração do ambiente para \texttt{MPLBACKEND=Agg} permitiu retomar as combinações pendentes. Uma interrupção posterior de sessão exigiu nova retomada. As duas combinações restantes, \texttt{363628|1|group\_tuned} e \texttt{363628|2|group\_tuned}, falharam por insuficiência de memória para uma alocação estimada em aproximadamente $12.684\text{ MB}$, sem descarregamento em disco habilitado nesse caso. O dataset possui $129.880$ instâncias no total; os conjuntos de teste dos folds 1 e 2 possuem \textbf{$43.293$ instâncias cada}, e não $86.587$. As duas avaliações foram concluídas no ambiente Kaggle, sem alteração do código ou dos hiperparâmetros congelados. A evidência disponível não permite atribuir a falha exclusivamente à fragmentação ou ao acúmulo de memória CUDA. Nenhuma combinação anteriormente concluída com sucesso foi reavaliada nas retomadas, conforme \texttt{check\_protocol}.
 
 A Tabela~\ref{tab:val_vs_test} confronta o desempenho médio entre datasets na validação interna (média dos 9 folds internos por dataset em \texttt{validation.csv}) e na avaliação final (média dos 3 folds externos de teste em \texttt{test.csv}) para a métrica primária (AUC OvO) e para a métrica secundária (entropia cruzada).
 
@@ -476,6 +484,7 @@ A Tabela~\ref{tab:val_vs_test} confronta o desempenho médio entre datasets na v
     \caption{Comparação entre validação interna (\texttt{results/validation.csv}, $270$ partições internas por sistema) e teste externo selado (\texttt{results/test.csv}, $90$ folds externos por sistema) nas métricas primária (AUC OvO) e secundária (entropia cruzada).}
     \label{tab:val_vs_test}
     \small
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}lrrrr@{}}
         \toprule
         \textbf{Sistema} & \textbf{AUC OvO (val.)} & \textbf{AUC OvO (teste)} & \textbf{Entropia cruzada (val.)} & \textbf{Entropia cruzada (teste)} \\
@@ -487,9 +496,10 @@ A Tabela~\ref{tab:val_vs_test} confronta o desempenho médio entre datasets na v
         \texttt{xgboost} & $0{,}8190 \pm 0{,}1277$ & $0{,}8281 \pm 0{,}1259$ & $0{,}4932 \pm 0{,}2433$ & $0{,}4277 \pm 0{,}2120$ \\
         \bottomrule
     \end{tabular}
+    }%
 \end{table}
 
-Observam-se dois comportamentos metodologicamente reveladores na Tabela~\ref{tab:val_vs_test}: (i) todos os sistemas sem otimismo de seleção melhoram no teste externo em relação à validação interna (por exemplo, \texttt{group\_default} sobe de $0{,}8542$ para $0{,}8607$ e \texttt{lightgbm} de $0{,}8304$ para $0{,}8407$), pois no teste externo o estimador é ajustado com $100\%$ das amostras do treino externo (até $10.000$), enquanto na validação interna cada estimador dispunha de apenas $2/3$ desse volume; e (ii) a vantagem aparente de $+0{,}0014$ que \texttt{group\_tuned} exibia sobre \texttt{group\_default} na validação interna ($0{,}8556$ vs. $0{,}8542$, inflada pelo otimismo de seleção) desaparece completamente no teste externo selado ($0{,}8606$ vs. $0{,}8607$).
+Observam-se dois comportamentos metodologicamente reveladores na Tabela~\ref{tab:val_vs_test}: (i) todos os sistemas sem otimismo de seleção apresentaram AUC média superior no teste externo em relação à validação interna (por exemplo, \texttt{group\_default} sobe de $0{,}8542$ para $0{,}8607$ e \texttt{lightgbm} de $0{,}8304$ para $0{,}8407$), o que é compatível com o uso de maior volume de treinamento no ajuste final (até $10.000$ amostras), embora não permita atribuir causalmente toda a diferença observada a esse fator; e (ii) a vantagem aparente de $+0{,}0014$ que \texttt{group\_tuned} exibia sobre \texttt{group\_default} na validação interna ($0{,}8556$ vs. $0{,}8542$, inflada pelo otimismo de seleção) desaparece completamente no teste externo selado ($0{,}8606$ vs. $0{,}8607$).
 
 \subsection{Resultados gerais}
 \label{sec:resultados_gerais}
@@ -501,6 +511,7 @@ A Tabela~\ref{tab:resumo_geral} apresenta o resumo geral no conjunto de teste ex
     \caption{Resumo geral no conjunto de teste externo ($N = 30$ datasets; média $\pm$ desvio-padrão das médias por dataset sobre os 3 folds externos).}
     \label{tab:resumo_geral}
     \small
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}lrrrrrrr@{}}
         \toprule
         \textbf{Sistema} & \textbf{AUC OvO} & \textbf{Acurácia} & \textbf{G-Mean} & \textbf{Entropia cruz.} & \textbf{Busca (s)} & \textbf{Treino (s)} & \textbf{Pred. (s)} \\
@@ -512,6 +523,7 @@ A Tabela~\ref{tab:resumo_geral} apresenta o resumo geral no conjunto de teste ex
         \texttt{xgboost} & $0{,}8281 \pm 0{,}1259$ & $0{,}8548 \pm 0{,}0885$ & $0{,}6166 \pm 0{,}2718$ & $0{,}4277 \pm 0{,}2120$ & $0{,}00$ & $2{,}75$ & $0{,}21$ \\
         \bottomrule
     \end{tabular}
+    }%
 \end{table}
 
 \begin{figure}[htbp]
@@ -543,46 +555,63 @@ A estatística qui-quadrado de Friedman atingiu $\chi^2_F = 37{,}480$ ($p = 3{,}
 Como $p = 3{,}284 \times 10^{-10} \ll 0{,}05$, rejeita-se com folga a hipótese nula de equivalência global de postos médios, habilitando os testes post-hoc.
 
 \paragraph{2. Comparações post-hoc com controle (Holm e Bonferroni-Dunn) e todos contra todos (Nemenyi).}
-Com $k = 4$ e $N = 30$, o erro padrão das diferenças de postos médios é $\mathrm{SE} = \sqrt{k(k+1)/(6N)} = \sqrt{20/180} = 1/3 \approx 0{,}3333$. A Tabela~\ref{tab:holm_wilcoxon} apresenta os resultados do procedimento sequencial de Holm e do teste pareado de Wilcoxon signed-ranks contra o controle \texttt{group\_tuned}, tanto para a métrica primária (AUC OvO) quanto para a métrica secundária (entropia cruzada). As Figuras~\ref{fig:cd_auc} e~\ref{fig:cd_ce} exibem os diagramas de diferença crítica (CD) de Bonferroni-Dunn ($\mathrm{CD}_{\mathrm{BD}} = 0{,}798$) e de Nemenyi ($\mathrm{CD}_{\mathrm{Nem}} = 0{,}856$).
+Com $k = 4$ e $N = 30$, o erro padrão das diferenças de postos médios é $\mathrm{SE} = \sqrt{k(k+1)/(6N)} = \sqrt{20/180} = 1/3 \approx 0{,}3333$. As Tabelas~\ref{tab:holm_wilcoxon} e~\ref{tab:wilcoxon_baselines} apresentam, respectivamente, os resultados do procedimento sequencial de Holm e do teste pareado de Wilcoxon signed-ranks contra o controle \texttt{group\_tuned}, tanto para a métrica primária (AUC OvO) quanto para a métrica secundária (entropia cruzada). As Figuras~\ref{fig:cd_auc} e~\ref{fig:cd_ce} exibem os diagramas de diferença crítica (CD) de Bonferroni-Dunn ($\mathrm{CD}_{\mathrm{BD}} = 0{,}798$) e de Nemenyi ($\mathrm{CD}_{\mathrm{Nem}} = 0{,}856$).
 
 \begin{table}[htbp]
     \centering
-    \caption{Comparações post-hoc de Holm (baseadas nos postos de Friedman) e de Wilcoxon signed-ranks (com ajuste de Holm) tomando \texttt{group\_tuned} como controle ($N = 30$, $\alpha = 0{,}05$).}
+    \caption{Comparações post-hoc com \texttt{group\_tuned} como controle: procedimento de Holm aplicado aos postos de Friedman ($N=30$, $\alpha=0{,}05$).}
     \label{tab:holm_wilcoxon}
     \small
-    \begin{tabular}{@{}llrrrrrrl@{}}
+    \begin{tabular}{@{}llrrr@{}}
         \toprule
-        \textbf{Métrica} & \textbf{Baseline ($i$)} & $R_i - R_c$ & $z$ & $p_{\text{Holm}}$ (Postos) & \textbf{Vit./Emp./Der.} & $T_{\text{Wilc.}}$ & $p_{\text{Holm}}$ (Wilc.) & \textbf{Decisão (5\%)} \\
+        \textbf{Métrica} & \textbf{Baseline} & $R_i-R_c$ & $z$ & $p_{\mathrm{Holm}}$ \\
         \midrule
-        AUC OvO & \texttt{lightgbm} & $1{,}333$ & $4{,}000$ & $6{,}33 \times 10^{-5}$ & $27 / 0 / 3$ & $23{,}0$ & $2{,}38 \times 10^{-6}$ & Rejeita $H_0$ \\
-        AUC OvO & \texttt{catboost} & $1{,}567$ & $4{,}700$ & $5{,}20 \times 10^{-6}$ & $27 / 0 / 3$ & $19{,}0$ & $1{,}72 \times 10^{-6}$ & Rejeita $H_0$ \\
-        AUC OvO & \texttt{xgboost} & $1{,}900$ & $5{,}700$ & $3{,}59 \times 10^{-8}$ & $27 / 0 / 3$ & $22{,}0$ & $2{,}38 \times 10^{-6}$ & Rejeita $H_0$ \\
+        AUC OvO & \texttt{lightgbm} & $1{,}333$ & $4{,}000$ & $6{,}33\times10^{-5}$ \\
+        AUC OvO & \texttt{catboost} & $1{,}567$ & $4{,}700$ & $5{,}20\times10^{-6}$ \\
+        AUC OvO & \texttt{xgboost} & $1{,}900$ & $5{,}700$ & $3{,}59\times10^{-8}$ \\
         \midrule
-        Entropia cruz. & \texttt{lightgbm} & $0{,}700$ & $2{,}100$ & $3{,}57 \times 10^{-2}$ & $22 / 0 / 8$ & $75{,}0$ & $7{,}30 \times 10^{-4}$ & Rejeita $H_0$\textsuperscript{a} \\
-        Entropia cruz. & \texttt{catboost} & $1{,}700$ & $5{,}100$ & $6{,}79 \times 10^{-7}$ & $28 / 0 / 2$ & $17{,}0$ & $1{,}16 \times 10^{-6}$ & Rejeita $H_0$ \\
-        Entropia cruz. & \texttt{xgboost} & $1{,}867$ & $5{,}600$ & $6{,}43 \times 10^{-8}$ & $27 / 0 / 3$ & $24{,}0$ & $2{,}84 \times 10^{-6}$ & Rejeita $H_0$ \\
+        Entropia cruzada & \texttt{lightgbm} & $0{,}700$ & $2{,}100$ & $0{,}0357$ \\
+        Entropia cruzada & \texttt{catboost} & $1{,}700$ & $5{,}100$ & $6{,}79\times10^{-7}$ \\
+        Entropia cruzada & \texttt{xgboost} & $1{,}867$ & $5{,}600$ & $6{,}43\times10^{-8}$ \\
         \bottomrule
     \end{tabular}
-    \vspace{0.3em}
-    \begin{flushleft}
-    \footnotesize
-    \textsuperscript{a} Na entropia cruzada, a comparação \texttt{group\_tuned} vs. \texttt{lightgbm} rejeita $H_0$ a $5\%$ pelo procedimento de Holm ($p_{\text{Holm}} = 0{,}0357$) e por Wilcoxon ($p_{\text{Holm}} = 0{,}00073$), mas não excede a diferença crítica mais conservadora de Bonferroni-Dunn ($0{,}700 < 0{,}798$) nem de Nemenyi ($0{,}700 < 0{,}856$).
-    \end{flushleft}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Comparações pareadas com o controle (Wilcoxon signed-ranks e ajuste de Holm); vitórias, empates e derrotas do \texttt{group\_tuned} por dataset.}
+    \label{tab:wilcoxon_baselines}
+    \small
+    \begin{tabular}{@{}llrrr@{}}
+        \toprule
+        \textbf{Métrica} & \textbf{Baseline} & \textbf{Vit./Emp./Der.} & $T$ & $p_{\mathrm{Holm}}$ \\
+        \midrule
+        AUC OvO & \texttt{lightgbm} & $27/0/3$ & $23{,}0$ & $2{,}38\times10^{-6}$ \\
+        AUC OvO & \texttt{catboost} & $27/0/3$ & $19{,}0$ & $1{,}72\times10^{-6}$ \\
+        AUC OvO & \texttt{xgboost} & $27/0/3$ & $22{,}0$ & $2{,}38\times10^{-6}$ \\
+        \midrule
+        Entropia cruzada & \texttt{lightgbm} & $22/0/8$ & $75{,}0$ & $7{,}30\times10^{-4}$ \\
+        Entropia cruzada & \texttt{catboost} & $28/0/2$ & $17{,}0$ & $1{,}16\times10^{-6}$ \\
+        Entropia cruzada & \texttt{xgboost} & $27/0/3$ & $24{,}0$ & $2{,}84\times10^{-6}$ \\
+        \bottomrule
+    \end{tabular}
+    \par\vspace{0.4em}
+    {\footnotesize Na entropia cruzada, a diferença \texttt{group\_tuned} versus \texttt{lightgbm} é significativa por Holm ($p=0{,}0357$), mas não supera as diferenças críticas de Bonferroni-Dunn ($0{,}798$) ou Nemenyi ($0{,}856$).}
 \end{table}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.48\textwidth]{../../../results/figures/cd_bonferroni_dunn_auc_ovo.png}\hfill
-    \includegraphics[width=0.48\textwidth]{../../../results/figures/cd_nemenyi_auc_ovo.png}
-    \caption{Diagramas de diferença crítica (CD) para a métrica primária \textbf{AUC OvO} ($N = 30$, $\alpha = 0{,}05$): Bonferroni-Dunn com \texttt{group\_tuned} como controle ($\mathrm{CD} = 0{,}798$, esquerda) e Nemenyi todos contra todos ($\mathrm{CD} = 0{,}856$, direita).}
+    \includegraphics[width=0.86\textwidth]{../figuras/cd_bonferroni_dunn_auc_ovo.png}\par\vspace{0.5em}
+    \includegraphics[width=0.86\textwidth]{../figuras/cd_nemenyi_auc_ovo.png}
+    \caption{Diagramas de diferença crítica (CD) para a métrica primária \textbf{AUC OvO} ($N = 30$, $\alpha = 0{,}05$): Bonferroni-Dunn com \texttt{group\_tuned} como controle ($\mathrm{CD} = 0{,}798$, acima) e Nemenyi todos contra todos ($\mathrm{CD} = 0{,}856$, abaixo).}
     \label{fig:cd_auc}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.48\textwidth]{../../../results/figures/cd_bonferroni_dunn_cross_entropy.png}\hfill
-    \includegraphics[width=0.48\textwidth]{../../../results/figures/cd_nemenyi_cross_entropy.png}
-    \caption{Diagramas de diferença crítica (CD) para a métrica secundária \textbf{entropia cruzada} ($N = 30$, $\alpha = 0{,}05$): Bonferroni-Dunn com \texttt{group\_tuned} como controle ($\mathrm{CD} = 0{,}798$, esquerda) e Nemenyi todos contra todos ($\mathrm{CD} = 0{,}856$, direita).}
+    \includegraphics[width=0.86\textwidth]{../figuras/cd_bonferroni_dunn_cross_entropy.png}\par\vspace{0.5em}
+    \includegraphics[width=0.86\textwidth]{../figuras/cd_nemenyi_cross_entropy.png}
+    \caption{Diagramas de diferença crítica (CD) para a métrica secundária \textbf{entropia cruzada} ($N = 30$, $\alpha = 0{,}05$): Bonferroni-Dunn com \texttt{group\_tuned} como controle ($\mathrm{CD} = 0{,}798$, acima) e Nemenyi todos contra todos ($\mathrm{CD} = 0{,}856$, abaixo).}
     \label{fig:cd_ce}
 \end{figure}
 
@@ -590,7 +619,7 @@ Com $k = 4$ e $N = 30$, o erro padrão das diferenças de postos médios é $\ma
 Para avaliar descritivamente o efeito da busca de hiperparâmetros sobre o próprio modelo do grupo nos 30 datasets de teste:
 \begin{itemize}[leftmargin=2em]
     \item Na \textbf{AUC OvO}, \texttt{group\_tuned} obteve 18 vitórias, 0 empates e 12 derrotas frente a \texttt{group\_default}, com somas de postos $R^+ = 281{,}0$ e $R^- = 184{,}0$, estatística $T = \min(R^+, R^-) = 184{,}0$ e $p = 0{,}3285$ (não significativo a $5\%$);
-    \item Na \textbf{entropia cruzada} (menor é melhor), o quadro inverteu-se de forma contundente: \texttt{group\_tuned} obteve apenas 1 vitória (\texttt{credit-g}) e \textbf{29 derrotas} frente a \texttt{group\_default} ($R^+ = 1{,}0$, $R^- = 464{,}0$, $T = 1{,}0$, $p = 3{,}725 \times 10^{-9}$), demonstrando que a busca guiada por AUC OvO degradou significativamente a calibração probabilística do modelo em relação ao padrão.
+    \item Na \textbf{entropia cruzada} (menor é melhor), o quadro inverteu-se de forma contundente: \texttt{group\_tuned} obteve apenas 1 vitória (\texttt{credit-g}) e \textbf{29 derrotas} frente a \texttt{group\_default} ($R^+ = 1{,}0$, $R^- = 464{,}0$, $T = 1{,}0$, $p = 3{,}725 \times 10^{-9}$), indicando pior resultado na métrica probabilística de entropia cruzada para a variante otimizada, sem que tenha sido realizado teste específico de calibração.
 \end{itemize}
 
 \subsection{Incerteza no conjunto de teste}
@@ -628,6 +657,7 @@ A Tabela~\ref{tab:regimes} sintetiza o desempenho descritivo (média $\pm$ desvi
     \caption{Desempenho médio (AUC OvO no teste externo) e postos médios estratificados pelos quatro eixos de regime da suíte TabArena.}
     \label{tab:regimes}
     \small
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}llrrrrr@{}}
         \toprule
         \textbf{Eixo de regime} & \textbf{Estrato} & $N_{\text{cel}}$ & \texttt{group\_tuned} & \texttt{lightgbm} & \texttt{catboost} & \texttt{xgboost} \\
@@ -648,6 +678,7 @@ A Tabela~\ref{tab:regimes} sintetiza o desempenho descritivo (média $\pm$ desvi
         Valores ausentes & Com ausentes (\texttt{yes}) & 6 & $\mathbf{0{,}8837} \pm 0{,}0942$ & $0{,}8614 \pm 0{,}0975$ & $0{,}8544 \pm 0{,}0994$ & $0{,}8117 \pm 0{,}1407$ \\
         \bottomrule
     \end{tabular}
+    }%
 \end{table}
 
 O TabICL v2 lidera a média de AUC OvO em \textbf{todos os nove estratos} dos quatro eixos analisados. A vantagem é especialmente pronunciada no regime \textbf{pequeno}, no qual \texttt{group\_tuned} alcançou o primeiro lugar invicto nos 10 datasets (posto médio $1{,}00$, superando o segundo colocado em $+3{,}20\text{ p.p.}$ de AUC média), bem como em bases com baixa proporção categórica ($+2{,}35\text{ p.p.}$) e presença de valores ausentes ($+2{,}23\text{ p.p.}$). No regime \textbf{grande}, como o conjunto de contexto do TabICL e o treino dos GBDTs são limitados a $10.000$ amostras e os GBDTs dispõem de dados suficientes para reduzir sua variância, a vantagem estreita-se para $+0{,}95\text{ p.p.}$ sobre o LightGBM (posto médio de $1{,}60$ vs. $2{,}20$). Nos únicos 3 datasets em que \texttt{group\_tuned} não obteve o primeiro posto (\texttt{hiva\_agnostic}, \texttt{bank-marketing} e \texttt{E-CommereShippingData}), destacam-se a altíssima dimensionalidade esparsa e desbalanceamento extremo de \texttt{hiva\_agnostic} ($m = 1.617$, razão $88{,}33$) ou fronteiras simples alinhadas a atributos categóricos discretos. Ressalta-se que esta estratificação é estritamente descritiva: com $N_{\text{cel}} = 10$ (ou $6$), a diferença crítica de Nemenyi sobe para $\mathrm{CD}_{N=10} = 1{,}483$ (ou $1{,}915$ para $N=6$), conferindo baixo poder estatístico a testes formais por subgrupo.
@@ -664,10 +695,10 @@ A Figura~\ref{fig:custo_desempenho} relaciona o tempo total médio por fold exte
     \label{fig:custo_desempenho}
 \end{figure}
 
-O gráfico delineia três patamares distintos na fronteira de Pareto entre custo e qualidade preditiva:
+O gráfico permite identificar três faixas de compromisso entre custo e qualidade preditiva, sem pressupor que todos os sistemas citados pertençam à fronteira de Pareto:
 \begin{enumerate}[leftmargin=2em]
-    \item \textbf{Patamar de baixa latência (baselines GBDT, $3\text{ a }5\text{ s}$):} o \texttt{lightgbm} ($3{,}32\text{ s}$, AUC $0{,}8407$) domina o \texttt{xgboost} ($2{,}96\text{ s}$, AUC $0{,}8281$) e empata em AUC com o \texttt{catboost} ($4{,}73\text{ s}$, AUC $0{,}8405$) com menor tempo total;
-    \item \textbf{Ponto ótimo de inferência em contexto sem busca (\texttt{group\_default}, $22{,}24\text{ s}$):} eleva a AUC OvO média para $0{,}8607$ ($+2{,}00\text{ p.p.}$) e atinge a menor entropia cruzada global ($0{,}3005$) sem custo de busca ($\texttt{tune\_time\_s} = 0$), concentrando seu tempo na inferência dos 8 Transformers sobre o contexto ($18{,}38\text{ s}$ em média, puxado pelas bases de $1.617$--$1.776$ colunas e testes de até $86.587$ linhas);
+    \item \textbf{Patamar de baixa latência (baselines GBDT, $3\text{ a }5\text{ s}$):} o \texttt{lightgbm} ($3{,}32\text{ s}$, AUC $0{,}8407$) apresenta AUC superior à do \texttt{xgboost} ($2{,}96\text{ s}$, AUC $0{,}8281$), mas também maior tempo médio; portanto, não o domina no sentido estrito de Pareto. Em relação ao \texttt{catboost} ($4{,}73\text{ s}$, AUC $0{,}8405$), o \texttt{lightgbm} combina AUC média ligeiramente maior e tempo menor;
+    \item \textbf{Ponto ótimo de inferência em contexto sem busca (\texttt{group\_default}, $22{,}24\text{ s}$):} eleva a AUC OvO média para $0{,}8607$ ($+2{,}00\text{ p.p.}$) e atinge a menor entropia cruzada global ($0{,}3005$) sem custo de busca ($\texttt{tune\_time\_s} = 0$), concentrando seu tempo na inferência dos 8 Transformers sobre o contexto ($18{,}38\text{ s}$ em média, puxado pelas bases de $1.617$--$1.776$ colunas e testes de até $43.294$ linhas);
     \item \textbf{Custo elevado com retorno nulo da busca (\texttt{group\_tuned}, $218{,}78\text{ s}$):} multiplica o tempo total por $9{,}84\times$ devido aos $196{,}49\text{ s}$ médios da busca no Optuna sem produzir melhoria em AUC OvO ($0{,}8606$) e piorando a entropia cruzada ($0{,}3150$).
 \end{enumerate}
 
@@ -680,8 +711,8 @@ Consolidam-se a seguir as respostas às seis perguntas orientadoras do notebook 
     \item \textbf{Pergunta 2 (Diferenças contra baselines, Holm vs. Bonferroni-Dunn e poder estatístico):} \texttt{group\_tuned} supera significativamente todos os três baselines (LightGBM, CatBoost e XGBoost) a $5\%$. As conclusões por Holm e por Bonferroni-Dunn coincidem integralmente na AUC OvO porque a menor diferença de postos ($1{,}333$ contra LightGBM) supera com folga a diferença crítica de Bonferroni-Dunn ($\mathrm{CD}_{\mathrm{BD}} = 0{,}798$). Segundo Demšar \cite{demsar2006statistical}, o procedimento step-down de Holm é uniformemente mais poderoso que Bonferroni-Dunn porque testa as hipóteses ordenadas contra limiares sequenciais $\alpha/(k-1), \alpha/(k-2), \dots, \alpha/1$, enquanto Bonferroni-Dunn aplica o limiar mais rígido $\alpha/(k-1)$ a todas as comparações;
     \item \textbf{Pergunta 3 (Comparações todos contra todos vs. controle e leitura de grupos sobrepostos no diagrama CD):} quando o objetivo científico é testar um modelo proposto contra $k-1$ baselines, testes todos contra todos como Nemenyi controlam o erro familiar sobre $k(k-1)/2 = 6$ pares em vez de $k-1 = 3$ comparações, inflando o valor crítico ($\mathrm{CD}_{\mathrm{Nem}} = 0{,}856 > \mathrm{CD}_{\mathrm{BD}} = 0{,}798$) e perdendo poder estatístico. Quando um sistema pertence simultaneamente a duas barras horizontais sobrepostas num diagrama CD, Demšar \cite{demsar2006statistical} adverte que barras de conexão não representam classes de equivalência transitivas: significa apenas que os dados experimentais ($N$ finito) são insuficientes para distinguir estatisticamente o algoritmo intermediário de ambos os extremos, embora os extremos difiram significativamente entre si;
     \item \textbf{Pergunta 4 (Efeito da busca de hiperparâmetros, comparação com validação interna e Wilcoxon vs. Friedman/Holm):} não; a busca não melhorou significativamente o modelo no teste em AUC OvO ($p = 0{,}3285$ no Wilcoxon pareado entre \texttt{group\_tuned} e \texttt{group\_default}) e não compensa o aumento de $9{,}84\times$ no tempo total ($218{,}78\text{ s}$ vs. $22{,}24\text{ s}$). O pequeno ganho aparente da validação interna ($+0{,}0014$) era fruto de otimismo de seleção. Nas comparações de \texttt{group\_tuned} contra os três baselines, o Wilcoxon com correção de Holm ($p_{\text{Holm}} \le 2{,}38 \times 10^{-6}$, Tabela~\ref{tab:holm_wilcoxon}) coincidiu com Friedman/Holm, mas Benavoli, Corani e Mangili \cite{benavoli2016should} ressaltam uma diferença conceitual central: em Friedman, o posto de A vs. B depende do desempenho dos demais algoritmos C e D incluídos no pool (violando a independência de alternativas irrelevantes), enquanto o Wilcoxon signed-ranks depende exclusivamente das magnitudes das diferenças pareadas entre A e B;
-    \item \textbf{Pergunta 5 (Destaques por regime, caráter descritivo e relação custo-desempenho):} o modelo destaca-se de forma absoluta nos datasets pequenos (posto médio $1{,}00$), mantendo liderança menor nos médios ($1{,}30$) e grandes ($1{,}60$). A análise por regimes é apenas descritiva porque cada célula contém apenas $N_{\text{cel}} \in \{6, 10, 15, 24\}$ datasets (para $N = 10$, $\mathrm{CD}_{\mathrm{Nem}} = 1{,}483$) e testar múltiplos subgrupos sem correção inflaria a taxa de falsos positivos. Na relação custo-desempenho, o \texttt{lightgbm} oferece o melhor compromisso entre os modelos ultrarrápidos de CPU ($3{,}32\text{ s}$, AUC $0{,}8407$), enquanto o \texttt{group\_default} oferece o melhor compromisso quando se prioriza máxima qualidade preditiva e calibração ($22{,}24\text{ s}$, AUC $0{,}8607$, entropia cruzada $0{,}3005$);
-    \item \textbf{Pergunta 6 (Repetição das seções 2 a 5 na métrica secundária \texttt{cross\_entropy} e multiplicidade entre métricas):} na entropia cruzada (menor é melhor), o teste global de Friedman/Iman-Davenport também rejeita $H_0$ ($F_F = 24{,}970$, $p = 9{,}53 \times 10^{-12}$), com postos médios $R_{\texttt{group\_tuned}} = 1{,}433$, $R_{\texttt{lightgbm}} = 2{,}133$, $R_{\texttt{catboost}} = 3{,}133$ e $R_{\texttt{xgboost}} = 3{,}300$. Três mudanças importantes emergem em relação à AUC OvO: (a) a diferença de postos entre \texttt{group\_tuned} e \texttt{lightgbm} cai para $0{,}700$, sendo significativa por Holm ($p_{\text{Holm}} = 0{,}0357$) e por Wilcoxon ($p_{\text{Holm}} = 0{,}00073$), mas não por Bonferroni-Dunn ($0{,}700 < 0{,}798$) nem por Nemenyi ($0{,}700 < 0{,}856$), ilustrando empiricamente o maior poder de Holm; (b) pelo teste de Nemenyi, o \texttt{lightgbm} passa a superar significativamente \texttt{catboost} ($\Delta R = 1{,}000 > 0{,}856$) e \texttt{xgboost} ($\Delta R = 1{,}167 > 0{,}856$) em calibração logarítmica; e (c) no Wilcoxon pareado entre as variantes do grupo, \texttt{group\_default} supera significativamente \texttt{group\_tuned} em 29 dos 30 datasets ($T = 1{,}0$, $p = 3{,}73 \times 10^{-9}$). Para tratar a multiplicidade entre métricas, preserva-se a hierarquia pré-declarada (AUC OvO como confirmatória primária e entropia cruzada como secundária complementar); sob uma correção de Bonferroni conservadora entre as duas famílias ($\alpha/2 = 0{,}025$), todas as comparações continuariam significativas exceto \texttt{group\_tuned} vs. \texttt{lightgbm} no pós-teste de postos de Holm na entropia cruzada ($p_{\text{Holm}} = 0{,}0357 > 0{,}025$).
+    \item \textbf{Pergunta 5 (Destaques por regime, caráter descritivo e relação custo-desempenho):} o modelo destaca-se de forma absoluta nos datasets pequenos (posto médio $1{,}00$), mantendo liderança menor nos médios ($1{,}30$) e grandes ($1{,}60$). A análise por regimes é apenas descritiva porque cada célula contém apenas $N_{\text{cel}} \in \{6, 10, 15, 24\}$ datasets (para $N = 10$, $\mathrm{CD}_{\mathrm{Nem}} = 1{,}483$) e testar múltiplos subgrupos sem correção inflaria a taxa de falsos positivos. Na relação custo-desempenho, o \texttt{lightgbm} oferece o melhor compromisso entre os modelos ultrarrápidos de CPU ($3{,}32\text{ s}$, AUC $0{,}8407$), enquanto o \texttt{group\_default} oferece o melhor compromisso quando se prioriza qualidade preditiva medida por AUC e entropia cruzada ($22{,}24\text{ s}$, AUC $0{,}8607$, entropia cruzada $0{,}3005$);
+    \item \textbf{Pergunta 6 (Repetição das seções 2 a 5 na métrica secundária \texttt{cross\_entropy} e multiplicidade entre métricas):} na entropia cruzada (menor é melhor), o teste global de Friedman/Iman-Davenport também rejeita $H_0$ ($F_F = 24{,}970$, $p = 9{,}53 \times 10^{-12}$), com postos médios $R_{\texttt{group\_tuned}} = 1{,}433$, $R_{\texttt{lightgbm}} = 2{,}133$, $R_{\texttt{catboost}} = 3{,}133$ e $R_{\texttt{xgboost}} = 3{,}300$. Três mudanças importantes emergem em relação à AUC OvO: (a) a diferença de postos entre \texttt{group\_tuned} e \texttt{lightgbm} cai para $0{,}700$, sendo significativa por Holm ($p_{\text{Holm}} = 0{,}0357$) e por Wilcoxon ($p_{\text{Holm}} = 0{,}00073$), mas não por Bonferroni-Dunn ($0{,}700 < 0{,}798$) nem por Nemenyi ($0{,}700 < 0{,}856$), ilustrando empiricamente o maior poder de Holm; (b) pelo teste de Nemenyi, o \texttt{lightgbm} passa a superar significativamente \texttt{catboost} ($\Delta R = 1{,}000 > 0{,}856$) e \texttt{xgboost} ($\Delta R = 1{,}167 > 0{,}856$) em entropia cruzada; e (c) no Wilcoxon pareado entre as variantes do grupo, \texttt{group\_default} supera significativamente \texttt{group\_tuned} em 29 dos 30 datasets ($T = 1{,}0$, $p = 3{,}73 \times 10^{-9}$). Para tratar a multiplicidade entre métricas, preserva-se a hierarquia pré-declarada (AUC OvO como confirmatória primária e entropia cruzada como secundária complementar); sob uma correção de Bonferroni conservadora entre as duas famílias ($\alpha/2 = 0{,}025$), todas as comparações continuariam significativas exceto \texttt{group\_tuned} vs. \texttt{lightgbm} no pós-teste de postos de Holm na entropia cruzada ($p_{\text{Holm}} = 0{,}0357 > 0{,}025$).
 \end{enumerate}
 
 % =============================================================================
@@ -690,20 +721,20 @@ Consolidam-se a seguir as respostas às seis perguntas orientadoras do notebook 
 
 Os resultados empíricos obtidos na Etapa~2 conectam-se diretamente às propriedades arquiteturais e matemáticas do TabICL v2 detalhadas na Etapa~1. A superioridade consistente do TabICL v2 sobre LightGBM, CatBoost e XGBoost em AUC OvO ($p_{\text{Holm}} \le 6{,}33 \times 10^{-5}$), acurácia, G-Mean e entropia cruzada confirma a tese central de Qu et al. \cite{qu2025tabicl,qu2026tabiclv2}: um modelo fundacional pré-treinado via aprendizagem em contexto sobre um prior sintético rico (combinando Modelos Causais Estruturais, ativações racionais de Cauchy e kernels de Sobolev) incorpora um viés indutivo multimodal capaz de aproximar fronteiras de decisão suaves e oblíquas que árvores ortogonais aos eixos só conseguem representar mediante particionamento excessivo.
 
-Essa diferença de viés indutivo explica por que o domínio do TabICL v2 foi absoluto no regime de datasets pequenos ($n < 2.500$, posto médio $1{,}00$ nos 10 datasets). Como evidenciado pelo estudo de sobreajuste na Seção~\ref{sec:overfitting}, quando $n$ é pequeno, GBDTs de alta capacidade como XGBoost e CatBoost sofrem forte variância amostral, apresentando lacunas treino-validação elevadas ($0{,}1585$ e $0{,}1313$) ao ajustar divisões a flutuações locais da amostra. Em contrapartida, no TabICL v2 os pesos dos estágios $\mathrm{TF}_{\mathrm{col}}$, $\mathrm{TF}_{\mathrm{row}}$ e $\mathrm{TF}_{\mathrm{icl}}$ permanecem congelados: a inferência opera como uma aproximação amortizada da distribuição preditiva posterior Bayesiana, integrando implicitamente sobre hipóteses compatíveis com o contexto de treino e mantendo estabilidade mesmo com poucas centenas de exemplos.
+Essa diferença de viés indutivo explica por que o domínio do TabICL v2 foi absoluto no regime de datasets pequenos ($n < 2.500$, posto médio $1{,}00$ nos 10 datasets). Como evidenciado pelo estudo de sobreajuste na Seção~\ref{sec:overfitting}, Nos datasets pequenos analisados, XGBoost e CatBoost apresentaram lacunas treino-validação elevadas ($0{,}1585$ e $0{,}1313$) , compatíveis com maior sobreajuste nesse recorte, sem que o experimento isole seu mecanismo causal. Por contraste, no TabICL v2 os pesos dos estágios $\mathrm{TF}_{\mathrm{col}}$, $\mathrm{TF}_{\mathrm{row}}$ e $\mathrm{TF}_{\mathrm{icl}}$ permanecem congelados: a inferência opera como uma aproximação amortizada da distribuição preditiva posterior Bayesiana, integrando implicitamente sobre hipóteses compatíveis com o contexto de treino e, neste conjunto de datasets, apresentou lacunas de generalização menores, sem demonstrar isoladamente a causa dessa diferença.
 
-No regime de datasets grandes ($n \ge 10.000$), embora o TabICL v2 tenha mantido a liderança descritiva (AUC média de $0{,}8450$ e posto médio $1{,}60$), a distância para o LightGBM ($0{,}8355$, posto $2{,}20$) reduziu-se substancialmente. Dois fatores concorrem para essa convergência: primeiro, com $10.000$ amostras de treinamento, os histogramas das árvores de decisão estimam ganhos de divisão com baixa variância, permitindo que os GBDTs aproximem superfícies complexas com precisão; segundo, ambos os paradigmas foram submetidos ao mesmo teto protocolar de subamostragem estratificada ($\texttt{MAX\_SAMPLES} = 10.000$), o que impede observar ganhos adicionais de escala mas reflete fielmente o regime prático em que a atenção quadrática $\mathcal{O}(n^2)$ do $\mathrm{TF}_{\mathrm{icl}}$ opera com folga de memória em uma GPU de $16\text{ GiB}$.
+No regime de datasets grandes ($n \ge 10.000$), embora o TabICL v2 tenha mantido a liderança descritiva (AUC média de $0{,}8450$ e posto médio $1{,}60$), a distância para o LightGBM ($0{,}8355$, posto $2{,}20$) reduziu-se substancialmente. Uma possível explicação é que o regime grande oferece amostras suficientes para que os GBDTs estimem divisões mais estáveis, mas esse mecanismo não foi testado diretamente. Além disso, os dois paradigmas foram avaliados sob o mesmo teto protocolar de subamostragem estratificada ($\texttt{MAX\_SAMPLES} = 10.000$), o que impede extrapolar os resultados para o uso integral de bases maiores. As falhas de memória observadas mostram que a execução não foi uniformemente confortável na GPU T4 e na RAM disponíveis.
 
-Um dos achados mais relevantes do estudo foi a superioridade do \texttt{group\_default} sobre o \texttt{group\_tuned} na métrica secundária de entropia cruzada (29 vitórias em 30 bases, $p = 3{,}73 \times 10^{-9}$) aliada ao empate técnico na métrica primária AUC OvO ($0{,}8607$ vs. $0{,}8606$, $p = 0{,}3285$). Conforme demonstrado no estudo de sensibilidade da Seção~\ref{sec:sensibilidade}, a AUC OvO é quase invariante à temperatura da softmax $\tau$ (e exatamente invariante no caso binário com média de logits), mas a entropia cruzada é fortemente convexa em torno de $\tau \approx 0{,}9$. Ao otimizar exclusivamente a AUC OvO nos 3 folds internos, o Optuna selecionou frequentemente temperaturas $\tau < 0{,}7$ ou combinações sem a visão identidade (\texttt{none}) que aproveitaram flutuações marginais de décimos de milésimo na AUC interna, mas descalibraram a nitidez das probabilidades no teste externo. Esse resultado corrobora empiricamente a recomendação dos autores do TabICL v2 \cite{qu2026tabiclv2}: os hiperparâmetros padrão do ensemble ($E = 8$, $\texttt{norm\_methods}=\texttt{["none", "power"]}$, $\tau_{\mathrm{out}} = 4{,}0$, $\tau = 0{,}9$) já são fortemente regularizados e dispensam ajuste por dataset.
+Um dos achados mais relevantes do estudo foi a superioridade do \texttt{group\_default} sobre o \texttt{group\_tuned} na métrica secundária de entropia cruzada (29 vitórias em 30 bases, $p = 3{,}73 \times 10^{-9}$) aliada à ausência de diferença significativa na métrica primária AUC OvO ($0{,}8607$ vs. $0{,}8606$, $p = 0{,}3285$). Conforme demonstrado no estudo de sensibilidade da Seção~\ref{sec:sensibilidade}, a A análise de sensibilidade sugeriu menor variação da AUC OvO com a temperatura de softmax $\tau$ que da entropia cruzada; essa observação é descritiva e se restringe às configurações investigadas. Como a busca maximizou a AUC OvO, não tinha a entropia cruzada como objetivo direto. Isso pode explicar a divergência entre métricas, mas não foi realizado um teste causal isolando temperaturas ou composições do ensemble no resultado final. A menor entropia cruzada da configuração padrão indica melhor desempenho na métrica probabilística avaliada, sem comprovar, por si só, calibração formal. Sob este protocolo e nos datasets considerados, não se observou benefício em AUC que justificasse o custo da busca.
 
-Por fim, o custo computacional observado delimita com clareza os cenários de aplicação prática. Enquanto o LightGBM resolve o ajuste e a predição de um fold externo em $3{,}32\text{ s}$ em CPU, o \texttt{group\_default} exige $22{,}24\text{ s}$ em GPU T4, com picos de mais de $120\text{ s}$ em tabelas de altíssima dimensionalidade ($m > 1.600$, nas quais a complexidade $\mathcal{O}(n m^2)$ do estágio $\mathrm{TF}_{\mathrm{row}}$ e o descarregamento em disco do Estágio~1 dominam o tempo). Assim, o TabICL v2 padrão é ideal quando a prioridade máxima é acurácia de ranqueamento e calibração probabilística em bases de até $10.000$ amostras e algumas centenas de atributos com GPU disponível, ao passo que o LightGBM permanece imbatível sob restrições severas de latência de inferência ou ausência de GPU.
+Por fim, o custo computacional observado delimita com clareza os cenários de aplicação prática. Enquanto o LightGBM resolve o ajuste e a predição de um fold externo em $3{,}32\text{ s}$ em CPU, o \texttt{group\_default} exige $22{,}24\text{ s}$ em GPU T4, com picos de mais de $120\text{ s}$ em tabelas de altíssima dimensionalidade ($m > 1.600$, nas quais a complexidade $\mathcal{O}(n m^2)$ do estágio $\mathrm{TF}_{\mathrm{row}}$ e o descarregamento em disco do Estágio~1 dominam o tempo). Assim, o TabICL v2 padrão é uma alternativa atraente quando o objetivo é obter AUC elevada e menor entropia cruzada no regime avaliado e há GPU disponível. O LightGBM constitui uma opção de menor custo médio e execução em CPU nos datasets estudados; a escolha para outras cargas de trabalho exige avaliação própria de latência e qualidade preditiva.
 
 \subsection{Ameaças à validade}
 \label{sec:ameacas}
 
 Seguindo a taxonomia clássica de validade experimental, registram-se quatro ameaças principais à validade deste estudo:
 \begin{enumerate}[leftmargin=2em]
-    \item \textbf{Validade interna (assimetria de busca e retomadas de sessão):} os baselines GBDT não passaram por busca de hiperparâmetros por dataset ($\texttt{tune\_time\_s} = 0$), utilizando os \emph{Tuned Defaults} meta-otimizados do \texttt{pytabkit}. Embora a comparação direta com \texttt{group\_default} (que tampouco utiliza busca e obteve a mesma AUC OvO de $0{,}8607$) comprove que a vantagem do TabICL v2 não decorre da assimetria de ajuste, GBDTs ajustados por Optuna com o mesmo orçamento de 20 trials poderiam estreitar a diferença de desempenho. Adicionalmente, como as execuções no Google Colab sofreram retomadas via \texttt{--resume}, os tempos de parede registrados podem refletir pequenas variações de carga de E/S da instância virtual;
+    \item \textbf{Validade interna (assimetria de busca e retomadas de sessão):} os baselines GBDT não passaram por busca de hiperparâmetros por dataset ($\texttt{tune\_time\_s} = 0$), utilizando os \emph{Tuned Defaults} meta-otimizados do \texttt{pytabkit}. Embora a configuração \texttt{group\_default} (sem busca) também tenha alcançado AUC OvO média elevada ($0{,}8607$), isso não elimina todas as possíveis consequências da assimetria de ajuste: GBDTs ajustados por Optuna com o mesmo orçamento de 20 trials poderiam estreitar a diferença de desempenho. Adicionalmente, como as execuções no Google Colab sofreram retomadas via \texttt{--resume}, os tempos de parede registrados podem refletir pequenas variações de carga de E/S da instância virtual;
     \item \textbf{Validade de construto (teto de subamostragem e métrica de otimização):} o protocolo impõe um teto de $10.000$ amostras de treinamento externo (\texttt{stratified\_subsample}). No regime grande ($n$ até $129.880$), esse limite restringe o volume de dados visto pelos GBDTs (que escalariam linearmente em CPU para o dataset inteiro), de modo que as conclusões no regime grande referem-se ao desempenho com até $10.000$ exemplos de treino;
     \item \textbf{Validade de conclusão estatística (tamanho amostral nos estratos e correlação entre folds):} com $N = 30$ datasets, os testes globais (Friedman, Iman-Davenport, Holm e Wilcoxon) possuem alto poder para detectar diferenças moderadas e grandes, mas as análises estratificadas por regime ($N_{\text{cel}} \in \{6, 10, 15\}$) carecem de potência estatística para inferência formal. Ademais, na seleção por regra de 1 EP (Seção~\ref{sec:overfitting}), o erro padrão calculado sobre $K = 3$ folds internos tem apenas 2 graus de liberdade e partições de treino parcialmente sobrepostas;
     \item \textbf{Validade externa (generalização além da suíte TabArena-v0.1):} embora os 30 datasets selecionados cubram ampla diversidade de domínios, tamanhos e proporções categóricas, todos pertencem à suíte curada TabArena-v0.1. A extrapolação direta para tabelas industriais com milhões de linhas, milhares de atributos esparsos ou forte deriva temporal (\emph{concept drift}) não é garantida sem validação específica.
@@ -713,13 +744,13 @@ Seguindo a taxonomia clássica de validade experimental, registram-se quatro ame
 \section{Reprodutibilidade}
 \label{sec:reprodutibilidade}
 
-Todo o código-fonte, testes automatizados, artefatos de protocolo, métricas consolidadas e scripts de geração de figuras estão versionados no repositório Git do projeto (\url{https://github.com/fal6-cin/projeto-final-IN1102-2026.2}). O gerenciamento de pacotes e dependências é assegurado de forma determinística pelo gerenciador \texttt{uv} por meio dos arquivos \texttt{pyproject.toml} e \texttt{uv.lock} sobre \textbf{Python 3.12}, incluindo o pacote extra \texttt{tabicl} (\texttt{tabicl==2.2.0}, PyTorch com suporte a CUDA, \texttt{pytabkit}, \texttt{scikit-learn}, \texttt{optuna} e \texttt{scipy}).
+Todo o código-fonte, os testes automatizados, o protocolo congelado e os resultados consolidados estão registrados no repositório Git do grupo (\url{https://github.com/leticialevleitao/projetoAM20262Q2}). A reprodução do ambiente utiliza \texttt{uv}, os arquivos \texttt{pyproject.toml} e \texttt{uv.lock} e Python~3.12, além das dependências para TabICL, PyTorch, \texttt{pytabkit}, \texttt{scikit-learn}, Optuna e SciPy.
 
 \paragraph{Hardware e tempos de execução.}
-Tanto a validação cruzada interna (\texttt{run\_validation}) quanto a avaliação final selada (\texttt{final\_test}) foram executadas em instância de nuvem \textbf{Google Colab} equipada com acelerador gráfico \textbf{NVIDIA Tesla T4} ($15.360\text{ MiB}$ de VRAM GDDR6, driver NVIDIA \texttt{580.82.07}, CUDA \texttt{12.x}) e processador Intel Xeon virtualizado. Na validação interna ($1.350$ avaliações válidas em \texttt{results/validation.csv}), os tempos medianos de ajuste e predição foram de $0{,}640\text{ s}$ / $0{,}036\text{ s}$ para LightGBM, $1{,}359\text{ s}$ / $0{,}027\text{ s}$ para XGBoost, $2{,}536\text{ s}$ / $0{,}026\text{ s}$ para CatBoost e $0{,}952\text{ s}$ / $2{,}144\text{ s}$ para \texttt{group\_default}, enquanto a busca do Optuna em \texttt{group\_tuned} apresentou tempo mediano de $166{,}12\text{ s}$ por fold externo (totalizando cerca de $4{,}61\text{ h}$ para as 90 buscas). Na avaliação final (\texttt{results/test.csv}, $450$ avaliações válidas), o tempo total acumulado de processamento entre \texttt{2026-11-07T18:16:14Z} e \texttt{2026-11-08T02:58:08Z} foi de aproximadamente $6{,}47\text{ horas}$ de computação efetiva.
+A validação interna e a maior parte da avaliação final foram executadas em Google Colab com GPU \textbf{NVIDIA Tesla T4} ($15.360\text{ MiB}$ de VRAM, driver \texttt{580.82.07}, Python~3.12). Duas avaliações finais com erro de memória foram recuperadas no \textbf{Kaggle}, com o mesmo arquivo de protocolo e o histórico de resultados preservado. Os dados não permitem atribuir toda a execução a uma única configuração de RAM ou a um único provedor. Na validação interna ($1.350$ registros válidos), os tempos medianos de ajuste e predição, em segundos, foram $0{,}640/0{,}036$ para LightGBM, $1{,}359/0{,}027$ para XGBoost, $2{,}536/0{,}026$ para CatBoost e $0{,}952/2{,}144$ para \texttt{group\_default}; a busca de \texttt{group\_tuned} teve mediana de $166{,}12\text{ s}$ por fold externo. Na avaliação final, a soma de \texttt{total\_time\_s} das $450$ combinações bem-sucedidas é de \textbf{$22.682{,}86\text{ s}$ ($6{,}30\text{ h}$)}, enquanto o intervalo cronológico entre o primeiro \texttt{inicio} e o último \texttt{fim} de \texttt{test\_log.csv} é de aproximadamente \textbf{$8{,}70\text{ h}$}. A primeira medida soma tempos instrumentados por avaliação; a segunda inclui interrupções, retomadas e intervalos entre sessões. Não devem ser confundidas.
 
 \paragraph{Auditoria do protocolo (\texttt{check\_protocol}) e rastreabilidade.}
-O arquivo \texttt{results/protocolo.lock} versionado no repositório possui hash SHA-256 \texttt{3fb961581e2de87b260c1bb4b45ffca7dd91e36c4ae69e4a4473bdb367dae1e7} (gerado em \texttt{2026-11-07T17:17:49+00:00} sob o commit \texttt{f474ef331d4cd17df4f8b87acfea6fea1ebbac2d} com $\texttt{git\_dirty} = \texttt{false}$). Ao executar \texttt{python -m src.pipeline.check\_protocol} no estado final do repositório, o verificador valida com sucesso os 30 datasets de \texttt{data/selecao\_datasets.txt}, os 26 hashes SHA-256 de todos os módulos de \texttt{src/} e \texttt{data/}, a igualdade do espaço de busca e do orçamento, as 450 linhas com $\texttt{status} = \texttt{ok}$ em \texttt{results/test.csv} e os 450 arquivos de probabilidades em \texttt{results/preds/}, mas aponta 3 divergências de metadados de rastreamento entre o ambiente local e a sessão remota do Google Colab (detalhadas no Apêndice~\ref{app:protocolo}): na máquina virtual do Colab em que \texttt{final\_test} foi executado, um commit intermediário de sincronização (\texttt{9718c9649b7c54730252336305f3ce2a8d795dec}) e uma regeração local do lock naquela VM (\texttt{lock\_sha256 = 59901430bd8c648642b9edff4d5ef667bd0c31ff24b11b8bb3a717b06fc69532}) ficaram gravados em \texttt{test\_log.csv} e \texttt{test\_manifest.json}. Em estrito cumprimento às normas de integridade científica da disciplina, nem o histórico Git nem os arquivos de resultados do teste foram reescritos ou manipulados após a execução para mascarar o alerta do verificador: todos os 26 módulos de código verificados por hash SHA-256 em \texttt{protocolo.lock} permanecem idênticos aos executados.
+O arquivo \texttt{results/protocolo.lock} foi gerado em \texttt{2026-11-07T16:35:09+00:00}, a partir da árvore limpa identificada pelo commit \texttt{0595782fc4ae3d59e4805d38205ce5e9c2b79d5b}, e possui SHA-256 iniciado por \texttt{59901430bd8c} (valor integral no Apêndice~\ref{app:protocolo}). O lock foi registrado no commit \texttt{9718c9649b}, anterior à avaliação final. O primeiro commit com os resultados de teste é \texttt{983c42aa4f}. Em auditoria realizada sobre o estado do repositório incluído no pacote (HEAD \texttt{dd8ce5c}), \texttt{python -m src.pipeline.check\_protocol} retornou \textbf{APROVADO}: 30 arquivos protegidos conferidos nos commits pertinentes, uma execução inicial e quatro retomadas, retomadas restritas a combinações pendentes ou com erro, continuidade do lock no histórico e consistência de \texttt{test.csv} com os hashes do manifesto. O resumo literal da saída está no Apêndice~\ref{app:protocolo}.
 
 \paragraph{Comandos para reprodução completa.}
 \begin{verbatim}
@@ -733,10 +764,12 @@ AM_STRICT=1 uv run pytest
 # 3. Fase de desenvolvimento (validacao cruzada interna)
 uv run python -m src.pipeline.run_validation --resume
 
-# 4. Congelamento do protocolo e avaliacao final unica (teste selado)
-uv run python -m src.pipeline.freeze
-uv run python -m src.pipeline.final_test --resume
+# 4. Conferir a integridade do experimento ja concluido
 uv run python -m src.pipeline.check_protocol
+
+# 5. Consultar os notebooks de analise de resultados
+# notebooks/04_analise_estatistica.ipynb
+# notebooks/05_overfitting.ipynb
 \end{verbatim}
 
 % =============================================================================
@@ -872,6 +905,7 @@ A Tabela~\ref{tab:app_datasets} apresenta a relação completa dos 30 datasets s
     \caption{Catálogo completo dos 30 datasets selecionados na suíte TabArena-v0.1 ($10$ pequenos, $10$ médios e $10$ grandes).}
     \label{tab:app_datasets}
     \footnotesize
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}rlrrrlrrl@{}}
         \toprule
         \textbf{Task ID} & \textbf{Nome do dataset} & $n$ & $m$ & $C$ & \textbf{\% Categ.} & \textbf{Ausentes} & \textbf{Razão desb.} & \textbf{Regime} \\
@@ -910,6 +944,7 @@ A Tabela~\ref{tab:app_datasets} apresenta a relação completa dos 30 datasets s
         363628 & customer\_satisfaction\_in\_airline & 129.880 & 21 & 2 & 76,2\% & Sim & 1,21 & large \\
         \bottomrule
     \end{tabular}
+    }%
 \end{table}
 
 % =============================================================================
@@ -927,12 +962,16 @@ NORM_METHODS_MAP = {
 }
 
 def search_space(trial) -> dict[str, Any]:
-    norm_key = trial.suggest_categorical("norm_methods", list(NORM_METHODS_MAP.keys()))
+    norm_key = trial.suggest_categorical(
+        "norm_methods", list(NORM_METHODS_MAP.keys()))
     return {
         "norm_methods": NORM_METHODS_MAP[norm_key],
-        "outlier_threshold": trial.suggest_float("outlier_threshold", 2.5, 6.0, log=False),
-        "softmax_temperature": trial.suggest_float("softmax_temperature", 0.5, 1.5, log=True),
-        "average_logits": trial.suggest_categorical("average_logits", [True, False]),
+        "outlier_threshold": trial.suggest_float(
+            "outlier_threshold", 2.5, 6.0, log=False),
+        "softmax_temperature": trial.suggest_float(
+            "softmax_temperature", 0.5, 1.5, log=True),
+        "average_logits": trial.suggest_categorical(
+            "average_logits", [True, False]),
     }
 \end{verbatim}
 
@@ -1036,58 +1075,64 @@ As Tabelas~\ref{tab:app_auc_dataset} e~\ref{tab:app_ce_dataset} reportam as méd
 \section{Registro do protocolo}
 \label{app:protocolo}
 
-Apresentam-se abaixo os registros de auditoria do protocolo experimental:
+Apresentam-se os registros efetivos conferidos no repositório Git e em \texttt{results/test\_log.csv}, sem substituir os logs originais.
 
-\paragraph{1. Hashes de commits de declarações a priori e congelamento:}
+\paragraph{1. Commits e integridade do protocolo.}
 \begin{itemize}[leftmargin=2em]
-    \item Commit de registro inicial da seleção de 30 datasets: \texttt{1db4ff8} (\emph{Registra seleção dos 30 datasets e justificativas});
-    \item Commit de implementação de \texttt{build\_group\_model}, \texttt{search\_space} e \texttt{docs/declaracoes\_a\_priori.md}: \texttt{0a99b2c}, atualizado em \texttt{e2c6968} (\emph{Revisa justificativas e substitui representante médio dos estudos});
-    \item Commit de congelamento de \texttt{results/protocolo.lock}: \texttt{84e60f6} (referenciando árvore limpa em \texttt{f474ef331d4cd17df4f8b87acfea6fea1ebbac2d}, timestamp \texttt{2026-11-07T17:17:49+00:00}, SHA-256 do arquivo: \texttt{3fb961581e2de87b260c1bb4b45ffca7dd91e36c4ae69e4a4473bdb367dae1e7});
-    \item Commit de registro dos resultados da avaliação final: \texttt{2d81dba} (\emph{Avaliação final}).
+    \item Seleção inicial de datasets: \texttt{1db4ff8}; declarações a priori e modelo do grupo: \texttt{0a99b2c}, atualizados em \texttt{e2c6968};
+    \item Commit da árvore de desenvolvimento congelada, registrado dentro do lock: \texttt{0595782fc4ae3d59e4805d38205ce5e9c2b79d5b};
+    \item Commit de \texttt{results/protocolo.lock}: \texttt{9718c9649b};
+    \item Primeiro commit com resultados da avaliação final: \texttt{983c42aa4f};
+    \item Estado do repositório auditado para esta revisão: \texttt{dd8ce5c};
+    \item SHA-256 de \texttt{results/protocolo.lock}: prefixo \texttt{59901430bd8c}; o valor integral encontra-se a seguir.
 \end{itemize}
-
-\paragraph{2. Conteúdo resumido de \texttt{results/protocolo.lock}:}
+{\noindent\footnotesize\ttfamily 59901430bd8c648642b9edff4d5ef667bd0c31ff24b11b8bb3a717b06fc69532}
+\paragraph{2. Conteúdo resumido de \texttt{results/protocolo.lock}.}
+{\small
 \begin{verbatim}
 {
   "version": 2,
-  "created_at": "2026-11-07T17:17:49+00:00",
+  "created_at": "2026-11-07T16:35:09+00:00",
   "budget": {"n_trials": 20, "tune_timeout": 600, "tune_max_samples": 10000},
   "seed": 42,
   "models": ["lightgbm", "xgboost", "catboost", "group_default", "group_tuned"],
   "folds": [0, 1, 2],
-  "git_commit": "f474ef331d4cd17df4f8b87acfea6fea1ebbac2d",
+  "git_commit": "0595782fc4ae3d59e4805d38205ce5e9c2b79d5b",
   "git_dirty": false
 }
 \end{verbatim}
+}
 
-\paragraph{3. Eventos de início e fim em \texttt{results/test\_log.csv} ($490$ linhas no total):}
+\paragraph{3. Inícios e términos registrados no log.}
+O arquivo \texttt{results/test\_log.csv} contém $490$ registros. Os cinco eventos \texttt{inicio} correspondem à avaliação inicial e a quatro retomadas:
 {\footnotesize
 \begin{verbatim}
-timestamp,event,lock_sha256,git_head,detail
-2026-11-07T18:16:14+00:00,inicio,59901430...9532,9718c964...5dec,combinacoes=450; resume=False
-2026-11-07T18:25:42+00:00,inicio,59901430...9532,9718c964...5dec,combinacoes=433; resume=True
-2026-11-08T01:43:22+00:00,fim,59901430...9532,9718c964...5dec,135 de 137 combinacoes ok
-2026-11-08T01:45:36+00:00,inicio,59901430...9532,9718c964...5dec,combinacoes=2; resume=True
-2026-11-08T01:54:18+00:00,fim,59901430...9532,9718c964...5dec,0 de 2 combinacoes ok
-2026-11-08T02:38:27+00:00,inicio,59901430...9532,9718c964...5dec,combinacoes=2; resume=True
-2026-11-08T02:58:08+00:00,fim,59901430...9532,9718c964...5dec,2 de 2 combinacoes ok
+2026-11-07T18:16:14+00:00 inicio  combinacoes=450; resume=False
+2026-11-07T18:25:42+00:00 inicio  combinacoes=433; resume=True
+2026-11-07T23:29:47+00:00 inicio  combinacoes=137; resume=True
+2026-11-08T01:43:22+00:00 fim     135 de 137 combinacoes ok
+2026-11-08T01:45:36+00:00 inicio  combinacoes=2; resume=True
+2026-11-08T01:54:18+00:00 fim     0 de 2 combinacoes ok
+2026-11-08T02:38:27+00:00 inicio  combinacoes=2; resume=True
+2026-11-08T02:58:08+00:00 fim     2 de 2 combinacoes ok
 \end{verbatim}
 }
-*(Nota: um corte intermediário de conexão da interface web do Colab ocorreu entre o dataset \texttt{363694} e a retomada dos 137 itens finais concluída em \texttt{01:43:22Z}.)*
+Todas as sessões registram o mesmo SHA-256 do lock e o commit Git \texttt{9718c9649b} como base da execução. O log preserva os erros intermediários sem alterar as combinações já concluídas com sucesso.
 
-\paragraph{4. Saída literal de \texttt{python -m src.pipeline.check\_protocol}:}
+\paragraph{4. Saída de \texttt{python -m src.pipeline.check\_protocol}.}
 {\footnotesize
 \begin{verbatim}
-Protocolo congelado em: 2026-11-07T17:17:49+00:00
-Commit registrado:      f474ef331d4cd17df4f8b87acfea6fea1ebbac2d
-Arvore suja no freeze:  False
-FALHA: test_log.csv registrou lock_sha256 diferente do protocolo.lock atual
-FALHA: commit registrado em test_log.csv nao e ancestral de HEAD: 9718c9649b7c...
-FALHA: manifesto de test.csv pertence a outro protocolo.lock
-Resultado: REPROVADO (3 falha(s))
+[OK] Primeiro commit com a avaliacao final: 983c42aa4f.
+[OK] protocolo.lock comitado antes do teste: 9718c9649b.
+[OK] Hashes de 30 arquivos travados conferem no commit do lock.
+[OK] Hashes dos arquivos travados conferem em HEAD (exceto alteracoes justificadas).
+[OK] test_log.csv registra uma unica avaliacao inicial e 4 retomada(s).
+[OK] As retomadas avaliaram apenas combinacoes pendentes ou com erro.
+[OK] Todas as execucoes da avaliacao final partiram de commits que contem o lock.
+[OK] test.csv confere com os hashes por linha do manifesto.
+Resultado: APROVADO
 \end{verbatim}
 }
-Conforme explicado na Seção~\ref{sec:reprodutibilidade}, todos os 26 arquivos de código e seleção verificados individualmente por SHA-256 em \texttt{check\_protocol} passaram sem qualquer divergência; os 3 alertas decorrem exclusivamente do fato de a instância remota do Google Colab ter regerado localmente o arquivo \texttt{protocolo.lock} sobre o commit temporário \texttt{9718c964...} antes de transferir \texttt{test.csv}, \texttt{test\_log.csv}, \texttt{test\_manifest.json} e \texttt{preds/} de volta ao repositório principal.
 
 % =============================================================================
 \section{Intervalos de confiança por bootstrap}
